@@ -1,0 +1,71 @@
+﻿<div class="container">
+	<div class="slider-container">
+		<div class="sun-time" data-dojo-attach-point="sunTime"></div>
+		<div data-dojo-type="dijit/form/HorizontalSlider" data-dojo-attach-point="slider" data-dojo-props='intermediateChanges:true,showButtons:false,minimum:0,maximum:23.99'
+		 style="margin-top:10px;"></div>
+	</div>
+	<section class="inner-wrapper-3" id="col-container">
+		<section class="one-third-col">
+			<section class="card one-third-row" id="Revenue">
+				<h3>Gross Monthly Rental Revenue</h3>
+				<span>
+					$628,704
+				</span>
+			</section>
+			<section class="card one-third-row" id="Occupancy">
+				<h3>Portfolio Occupancy Rate</h3>
+				<span>
+					75.56%
+				</span>
+			</section>
+			<section class="card one-third-row" id="PropertiesManaged">
+				<h3>No. of properties managed</h3>
+				<table>
+					<tr>
+						<td rowspan="3"><strong>115</strong></td>
+						<td>Occupied</td>
+						<td>87</td>
+					</tr>
+					<tr>
+						<td>Marketable</td>
+						<td>15</td>
+					</tr>
+					<tr>
+						<td>Unmarketable</td>
+						<td>13</td>
+					</tr>
+				</table>
+
+			</section>
+		</section>
+		<section class="one-third-col">
+			<section class="card" style="width:45%;float:left;">
+				<h3>No. of leases</h3>
+				<span>
+					127
+				</span>
+			</section>
+			<section class="card" style="width:55%;float:left;">
+				<h3>Portfolio Lease Expiry Portfolio</h3>
+				<canvas data-dojo-attach-point="LeaseExpiryChart" height="100px"></canvas>
+
+			</section>
+		</section>
+		<section class="one-third-col">
+			<section class="card" style="width:45%;float:left;">
+				<h3>Leasing Activity</h3>
+				<canvas data-dojo-attach-point="LeasingActivityChart" height="100px"></canvas>
+
+			</section>
+			<section class="card" style="width:55%;float:left;">
+				<h3>Tenant Mix</h3>
+				<canvas data-dojo-attach-point="TenantMixChart" height="100px"></canvas>
+
+			</section>
+		</section>
+	</section>
+
+
+
+
+</div>
