@@ -15,31 +15,33 @@
 ///////////////////////////////////////////////////////////////////////////
 
 define([
-    'dojo/_base/declare',
-    'jimu/BaseWidget',
-    'dojo/_base/html',
-    'dojo/on',
-    'dojo/when',
-    'dojo/_base/lang',
-    'esri/layers/GraphicsLayer',
-    "esri/widgets/Locate",
-    "esri/widgets/Locate/LocateViewModel",
-    "esri/symbols/PictureMarkerSymbol",
-    "esri/geometry/Point",
-    'esri/geometry/SpatialReference',
-    'esri/geometry/support/webMercatorUtils',
-    'esri/tasks/support/ProjectParameters',
-    'esri/Graphic',
-    "esri/config",
-    'jimu/utils'
-  ],
-  function(declare, BaseWidget, html, on, when, lang, GraphicLayer, Locate, LocateVM, PictureMarkerSymbol,
-           Point, SpatialReference, webMercatorUtils, ProjectParameters, Graphic, esriConfig, jimuUtils) {
+  'dojo/_base/declare',
+  'jimu/BaseWidget',
+  'dojo/_base/html',
+  'dojo/on',
+  'dojo/when',
+  'dojo/_base/lang',
+  'esri/layers/FeatureLayer',
+  'esri/layers/GraphicsLayer',
+  "esri/widgets/Locate",
+  "esri/widgets/Locate/LocateViewModel",
+  "esri/symbols/PictureMarkerSymbol",
+  "esri/geometry/Point",
+  'esri/geometry/SpatialReference',
+  'esri/geometry/support/webMercatorUtils',
+  'esri/tasks/support/ProjectParameters',
+  "esri/tasks/support/Query",
+  'esri/Graphic',
+  "esri/config",
+  'jimu/utils'
+],
+  function (declare, BaseWidget, html, on, when, lang, FeatureLayer, GraphicLayer, Locate, LocateVM, PictureMarkerSymbol,
+    Point, SpatialReference, webMercatorUtils, ProjectParameters, Query, Graphic, esriConfig, jimuUtils) {
     var clazz = declare([BaseWidget], {
       name: 'MyLocation',
       baseClass: 'jimu-widget-mylocation',
 
-      startup: function() {
+      startup: function () {
         this.inherited(arguments);
         this.placehoder = html.create('div', {
           'class': 'place-holder',
@@ -59,7 +61,7 @@ define([
         }
       },
 
-      onLocationClick: function() {
+      onLocationClick: function () {
         if (html.hasClass(this.domNode, "onCenter") ||
           html.hasClass(this.domNode, "locating")) {
           html.removeClass(this.domNode, "onCenter");
@@ -73,7 +75,7 @@ define([
         }
       },
 
-      onLocate: function(parameters) {
+      onLocate: function (parameters) {
         html.removeClass(this.placehoder, "locating");
         this.graphicsLayer.removeAll();
 
@@ -90,14 +92,14 @@ define([
         }
       },
 
-      onLocateError: function(evt) {
+      onLocateError: function (evt) {
         console.error(evt.error);
         html.removeClass(this.placehoder, "locating");
         html.removeClass(this.domNode, "onCenter");
         html.removeClass(this.placehoder, "tracking");
       },
 
-      _createGeoLocate: function() {
+      _createGeoLocate: function () {
         var json = this.config.locateButton;
         var geoOptions = {
           maximumAge: 0,
@@ -134,7 +136,7 @@ define([
         this.geoLocate.own(on(this.geoLocate.viewModel, "locate-error", lang.hitch(this, this.onLocateError)));//only 3d have error event
       },
 
-      _destroyGeoLocate: function() {
+      _destroyGeoLocate: function () {
         if (this.graphicsLayer) {
           this.graphicsLayer.removeAll();
           this.sceneView.map.remove(this.graphicsLayer);
@@ -147,15 +149,15 @@ define([
         this.geoLocate = null;
       },
 
-      destroy: function() {
+      destroy: function () {
         this._destroyGeoLocate();
         this.inherited(arguments);
       },
 
       //fix api bug: can't show the marker(start)
-      _pointMarkerManualy: function(parameters) {
-        if(typeof this.config.locateButton.highlightLocation === "undefined" ||
-          this.config.locateButton.highlightLocation === false){
+      _pointMarkerManualy: function (parameters) {
+        if (typeof this.config.locateButton.highlightLocation === "undefined" ||
+          this.config.locateButton.highlightLocation === false) {
           return;
         }
 
@@ -174,7 +176,7 @@ define([
             wkid: 4326
           })
         });
-        this._project(point).then(lang.hitch(this, function(geometries) {
+        this._project(point).then(lang.hitch(this, function (geometries) {
           var graphic = new Graphic({
             geometry: geometries[0],
             symbol: this.highlightSymbol
@@ -184,11 +186,11 @@ define([
           }
           //this.sceneView.animateTo(graphic);
           //html.addClass(this.domNode, "onCenter");
-        }), lang.hitch(this, function(err) {
+        }), lang.hitch(this, function (err) {
           this.onLocateError(err);
         }));
       },
-      _project: function(point) {
+      _project: function (point) {
         var sceneSR = this.sceneView.spatialReference;
         if (point.spatialReference.equals(sceneSR)) {
           return when([point]);

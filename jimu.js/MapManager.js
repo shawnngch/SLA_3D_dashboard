@@ -29,6 +29,7 @@ define([
   // 'esri/InfoTemplate',
   'esri/geometry/Extent',
   'esri/geometry/Point',
+  "esri/layers/SceneLayer",
   './utils',
 
   './dijit/LoadingShelter',
@@ -37,8 +38,8 @@ define([
   './AppStateManager',
   './WebSceneLoader',
   'esri/Viewpoint'
-], function(declare, lang, array, html, topic, on,/* aspect,*/ keys,/* Deferred, InfoWindow,
-  PopupMobile, InfoTemplate,*/ Extent, Point, jimuUtils, LoadingShelter, /*LayerInfos,
+], function (declare, lang, array, html, topic, on,/* aspect,*/ keys,/* Deferred, InfoWindow,
+  PopupMobile, InfoTemplate,*/ Extent, Point, SceneLayer, jimuUtils, LoadingShelter, /*LayerInfos,
   MapUrlParamsHandler,*/ AppStateManager, WebSceneLoader, Viewpoint) {
 
   var instance = null,
@@ -52,7 +53,7 @@ define([
 
       layerInfosObj: null,
 
-      constructor: function( /*Object*/ options, mapDivId) {
+        constructor: function ( /*Object*/ options, mapDivId) {
         this.appConfig = options.appConfig;
         this.urlParams = options.urlParams;
         this.mapDivId = mapDivId;
@@ -67,12 +68,12 @@ define([
         on(window, 'beforeunload', lang.hitch(this, this.onBeforeUnload));
       },
 
-      showMap: function() {
+        showMap: function () {
         // console.timeEnd('before map');
         this._showMap(this.appConfig);
       },
 
-      _showMap: function(appConfig) {
+        _showMap: function (appConfig) {
         // console.timeEnd('before map');
         console.time('Load Map');
         this.loading = new LoadingShelter();
@@ -94,28 +95,28 @@ define([
         }
       },
 
-      onBeforeUnload: function() {
+        onBeforeUnload: function () {
         this.appStateManager.saveWabAppState(this.map, this.layerInfosObj);
       },
 
-      onWindowResize: function() {
+        onWindowResize: function () {
         if (this.map && this.map.resize) {
           this.map.resize();
           this.resetInfoWindow(false);
         }
       },
 
-      getMapInfoWindow: function(){
+        getMapInfoWindow: function () {
         return {
           mobile: this._mapMobileInfoWindow,
           bigScreen: this._mapInfoWindow
         };
       },
 
-      resetInfoWindow: function(isNewMap) {
-        if(isNewMap){
+        resetInfoWindow: function (isNewMap) {
+          if (isNewMap) {
           this._mapInfoWindow = this.map.infoWindow;
-          if(this._mapMobileInfoWindow){
+            if (this._mapMobileInfoWindow) {
             this._mapMobileInfoWindow.destroy();
           }
           // this._mapMobileInfoWindow =
@@ -133,13 +134,13 @@ define([
         }
       },
 
-      onChangeMapPosition: function(position) {
+        onChangeMapPosition: function (position) {
         var pos = lang.clone(this.mapPosition);
         lang.mixin(pos, position);
         this.setMapPosition(pos);
       },
 
-      setMapPosition: function(position){
+        setMapPosition: function (position) {
         this.mapPosition = position;
 
         var posStyle = jimuUtils.getPositionStyle(position);
@@ -149,7 +150,7 @@ define([
         }
       },
 
-      getMapPosition: function(){
+        getMapPosition: function () {
         return this.mapPosition;
       },
 
@@ -162,34 +163,34 @@ define([
       //   }
       // },
 
-      onSyncViewpoint: function(viewpoint){
-        if(this.sceneView){
+        onSyncViewpoint: function (viewpoint) {
+          if (this.sceneView) {
           this.sceneView.viewpoint = viewpoint.clone();
         }
       },
 
-      _visitConfigMapLayers: function(appConfig, cb) {
-        array.forEach(appConfig.map.basemaps, function(layerConfig, i) {
+        _visitConfigMapLayers: function (appConfig, cb) {
+          array.forEach(appConfig.map.basemaps, function (layerConfig, i) {
           layerConfig.isOperationalLayer = false;
           cb(layerConfig, i);
         }, this);
 
-        array.forEach(appConfig.map.operationallayers, function(layerConfig, i) {
+          array.forEach(appConfig.map.operationallayers, function (layerConfig, i) {
           layerConfig.isOperationalLayer = true;
           cb(layerConfig, i);
         }, this);
       },
 
-      _destroySceneView: function(){
-        if(this.sceneView){
+        _destroySceneView: function () {
+          if (this.sceneView) {
           // If we destroy map, we will can't switch web scene.
           // var map = this.sceneView.map;
           // if(map){
           //   map.destroy();
           // }
-          try{
+            try {
             this.sceneView.destroy();
-          }catch(e){
+            } catch (e) {
             console.error(e);
           }
         }
@@ -197,21 +198,21 @@ define([
         window._sceneView = null;
       },
 
-      _show3DWebScene: function(appConfig) {
+        _show3DWebScene: function (appConfig) {
         var portalUrl = appConfig.map.portalUrl;
         var itemId = appConfig.map.itemId;
         this._destroySceneView();
         var def = WebSceneLoader.createMap(this.mapDivId, portalUrl, itemId);
 
-        def.then(lang.hitch(this, function(sceneView){
+          def.then(lang.hitch(this, function (sceneView) {
           // this._publishMapEvent(map);
           this._publishSceneViewEvent(sceneView);
-          if(appConfig.map.mapOptions){
+            if (appConfig.map.mapOptions) {
             var initialState = appConfig.map.mapOptions.initialState;
-            if(initialState && initialState.viewpoint){
-              try{
+              if (initialState && initialState.viewpoint) {
+                try {
                 var vp = Viewpoint.fromJSON(initialState.viewpoint);
-                if(vp){
+                  if (vp) {
                   this.sceneView.map.initialViewProperties.viewpoint = vp;
                   this.sceneView.viewpoint = vp.clone();
                 }
@@ -220,7 +221,16 @@ define([
               }
             }
           }
-        }), lang.hitch(this, function(){
+            // Shawn - Add Building Scene
+            var TanglinBuildings = new SceneLayer({
+              url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Buildings_Tanglin/SceneServer",
+              popupEnabled: true,
+              outFields: ["*"],
+              visible: true
+              // definitionExpression: definitionExpression
+            })
+            this.sceneView.map.addMany([TanglinBuildings])
+          }), lang.hitch(this, function () {
           if (this.loading) {
             this.loading.destroy();
           }
@@ -250,21 +260,21 @@ define([
       //   }
       // },
 
-      _publishSceneViewEvent: function(sceneView){
+        _publishSceneViewEvent: function (sceneView) {
         window._sceneView = sceneView;
 
         console.timeEnd('Load Map');
 
-        if(this.loading){
+          if (this.loading) {
           this.loading.destroy();
         }
 
-        if(this.sceneView){
+          if (this.sceneView) {
           this.sceneView = sceneView;
           //this.resetInfoWindow(true);
           console.log("sceneView changed");
           topic.publish('sceneViewChanged', this.sceneView);
-        }else{
+          } else {
           this.sceneView = sceneView;
           //this.resetInfoWindow(true);
           console.log("sceneView loaded");
@@ -272,13 +282,13 @@ define([
         }
       },
 
-      _show2DWebMap: function(appConfig) {
+        _show2DWebMap: function (appConfig) {
         //should use appConfig instead of this.appConfig, because appConfig is new.
         // if (appConfig.portalUrl) {
         //   var url = portalUrlUtils.getStandardPortalUrl(appConfig.portalUrl);
         //   agolUtils.arcgisUrl = url + "/sharing/content/items/";
         // }
-        if(!appConfig.map.mapOptions){
+          if (!appConfig.map.mapOptions) {
           appConfig.map.mapOptions = {};
         }
         var mapOptions = this._processMapOptions(appConfig.map.mapOptions) || {};
@@ -295,7 +305,7 @@ define([
         var mapDeferred = jimuUtils.createWebMap(webMapPortalUrl, webMapItemId,
           this.mapDivId, webMapOptions);
 
-        mapDeferred.then(lang.hitch(this, function(response) {
+          mapDeferred.then(lang.hitch(this, function (response) {
           var map = response.map;
 
           //hide the default zoom slider
@@ -320,8 +330,8 @@ define([
           //URL parameters that affect map extent
           var urlKeys = ['extent', 'center', 'marker', 'find', 'query', 'scale', 'level'];
           var useAppState = true;
-          array.forEach(urlKeys, function(k){
-            if(k in this.urlParams){
+            array.forEach(urlKeys, function (k) {
+              if (k in this.urlParams) {
               useAppState = false;
             }
           }, this);
@@ -335,7 +345,7 @@ define([
           // }
 
           this._publishMapEvent(map);
-        }), lang.hitch(this, function() {
+          }), lang.hitch(this, function () {
           if (this.loading) {
             this.loading.destroy();
           }
@@ -364,15 +374,15 @@ define([
       //   return def;
       // },
 
-      _processMapOptions: function(mapOptions) {
+        _processMapOptions: function (mapOptions) {
         if (!mapOptions) {
           return;
         }
 
-        if(!mapOptions.lods){
+          if (!mapOptions.lods) {
           delete mapOptions.lods;
         }
-        if(mapOptions.lods && mapOptions.lods.length === 0){
+          if (mapOptions.lods && mapOptions.lods.length === 0) {
           delete mapOptions.lods;
         }
 
@@ -390,16 +400,16 @@ define([
         return ret;
       },
 
-      onAppConfigChanged: function(appConfig, reason, changedJson) {
+        onAppConfigChanged: function (appConfig, reason, changedJson) {
         // jshint unused:false
         this.appConfig = appConfig;
-        if(reason === 'mapChange'){
+          if (reason === 'mapChange') {
           this._recreateMap(appConfig);
         }
-        else if(reason === 'mapOptionsChange'){
-          if(changedJson.initialState){
+          else if (reason === 'mapOptionsChange') {
+            if (changedJson.initialState) {
             var vp = changedJson.initialState.viewpoint;
-            if(vp){
+              if (vp) {
               //update initial viewpoint
               this.sceneView.map.initialViewProperties.viewpoint = Viewpoint.fromJSON(vp);
               //update current viewpoint
@@ -409,8 +419,8 @@ define([
         }
       },
 
-      _recreateMap: function(appConfig){
-        if(this.sceneView){
+        _recreateMap: function (appConfig) {
+          if (this.sceneView) {
           // topic.publish('beforeMapDestory', this.map);
           //this.map.destroy();
           topic.publish('beforeSceneViewDestory', this.sceneView);
@@ -419,17 +429,17 @@ define([
         this._showMap(appConfig);
       },
 
-      disableWebMapPopup: function() {
+        disableWebMapPopup: function () {
         // this.map.setInfoWindowOnClick(false);
       },
 
-      enableWebMapPopup: function() {
+        enableWebMapPopup: function () {
         // this.map.setInfoWindowOnClick(true);
       }
 
     });
 
-  clazz.getInstance = function(options, mapDivId) {
+    clazz.getInstance = function (options, mapDivId) {
     if (instance === null) {
       instance = new clazz(options, mapDivId);
     }

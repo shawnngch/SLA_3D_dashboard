@@ -24,16 +24,20 @@ define([
   'dojo/_base/config',
   'jimu/utils',
   'esri/core/watchUtils',
+  "esri/tasks/QueryTask",
+  "esri/tasks/support/Query",
   'node_modules/chart.js/dist/Chart.js',
   'dijit/form/HorizontalSlider',
   'dijit/form/Select',
   'jimu/dijit/CheckBox'
 
-], function (declare, BaseWidget, _WidgetsInTemplateMixin, on, lang, html, djConfig, jimuUtils, watchUtils, Chart) {
+], function (declare, BaseWidget, _WidgetsInTemplateMixin, on, lang, html, djConfig, jimuUtils, watchUtils, QueryTask, Query, Chart) {
 
   var clazz = declare([BaseWidget, _WidgetsInTemplateMixin], {
 
     baseClass: 'jimu-widget-overview',
+    _config: null,
+    SnapshotDate: window.SnapshotDate,
 
     //lighting._lastTimezone:The time zone which map shows
     //lighting.date: The date map uses
@@ -41,232 +45,236 @@ define([
     postCreate: function () {
       this.inherited(arguments);
 
-      this.sceneView.when(lang.hitch(this, this._init));
+      this._config = lang.clone(this.config.editor);
+      var that = this;
+
+      var SnapshotDate = this.SnapshotDate
+      if (!this.SnapshotDate) {
+        console.log("no value")
+        SnapshotDate = new Date("2018-10-01");
+        this.SnapshotDate = SnapshotDate;
+      } else {
+        console.log(SnapshotDate)
+      }
+
+      var optionsfull = { year: 'numeric', month: 'long', day: 'numeric' };
+      var tenancyQueryTask = new QueryTask({
+        url: this._config.layerInfos[3].featureLayer.url
+      });
+
+      var query = new Query();
+      query.returnGeometry = false;
+      query.where = "SnapshotDate = '" + SnapshotDate.toLocaleDateString('en-US', optionsfull) + "'";
+      query.outFields = ["*"];
+
+      tenancyQueryTask.execute(query).then(function (tenancyResults) {
+        var resultset = tenancyResults.features;
+        var tenants = []
+        that.TenantFilter.innerHTML = "<option></option>"
+
+        for (var i = 0; i < resultset.length; i++) {
+          tenants.push({
+            TA_Account: resultset[i].attributes.TA_Account,
+            Licensee_Tenant_Name: resultset[i].attributes.Licensee_Tenant_Name
+          })
+
+          that.TenantFilter.innerHTML += "<option value='" + resultset[i].attributes.TA_Account + "'>" + resultset[i].attributes.TA_Account + " - " + resultset[i].attributes.Licensee_Tenant_Name + "</option>"
+        }
+
+        that.own(on(that.TenantFilter, 'change', lang.hitch(that, that._onFilterChanged)));
+        that._onFilterChanged();
+      })
+
     },
 
-    _init: function () {
+    _onFilterChanged: function () {
+      console.log("_onFilterChanged")
+      var optionsfull = { year: 'numeric', month: 'long', day: 'numeric' };
+      var that = this;
+      var NLAChart = this.NLAChart;
+      var PMS = [], IDTA = [], subTenants = [], tenancy = [];
 
-      //init UI
-      // var date = this._getDateOfLighting();
-      //use lighting.date to init monthSelect
-      // this._initMonthSelect(date);
-      //use initialTimeZone to init zoneSelect
-      // this._initZoneSelect();
-      //use lighting.date and GMT to init slider
-      // this._updateSliderUIByDate(date);
+      var PMSqueryTask = new QueryTask({
+        url: this._config.layerInfos[0].featureLayer.url
+      });
+      var tenancyQueryTask = new QueryTask({
+        url: this._config.layerInfos[3].featureLayer.url
+      });
+      var IDTAqueryTask = new QueryTask({
+        url: this._config.layerInfos[1].featureLayer.url
+      });
+      var param0 =
+      {
+        attribute: 'TA_Account',
+        Values: [this.TenantFilter.value],
+        queryTask: tenancyQueryTask
+      }
 
-      //bind events
-      // var lighting = this.sceneView.environment.lighting;
-      // this.own(on(lighting, "date-will-change", lang.hitch(this, this._onDateWillChange)));
-      // this.own(on(this.zoneSelect, 'change', lang.hitch(this, this._onZoneSelectChanged)));
-      // this.own(on(this.monthSelect, 'change', lang.hitch(this, this._onMonthSelectChanged)));
-      // this.own(on(this.slider, 'change', lang.hitch(this, this._onSliderValueChanged)));
+      this.queryManager(param0).then(function (tenancyResults) {
+        console.log("tenancyResults")
+        var resultset = tenancyResults.features;
+        var List_TA_Account = []
+        for (var i = 0; i < resultset.length; i++) {
+          tenancy.push(resultset[i].attributes);
+          List_TA_Account.push(resultset[i].attributes.TA_Account)
+        }
 
+        return {
+          attribute: 'TA_Account',
+          Values: List_TA_Account,
+          queryTask: IDTAqueryTask
+        }
 
-      // var LeaseExpiryChart = this.LeaseExpiryChart;
-      var NILAChart = this.NILAChart;
-      var LeasingActivityChart = this.LeasingActivityChart;
-      var TenantMixChart = this.TenantMixChart;
+      }).then(param => {
+        return that.queryManager(param)
+      }).then(function (IDTAresults) {
+        console.log("IDTAresults")
+        var resultset = IDTAresults.features;
+        var List_Property_ID = []
 
+        for (var i = 0; i < resultset.length; i++) {
+          IDTA.push(resultset[i].attributes);
+          List_Property_ID.push(resultset[i].attributes.Property_ID)
+        }
 
-      // var myChart = new Chart(LeaseExpiryChart, {
-      //   type: 'bar',
-      //   data: {
-      //     labels: ["2018", "2019", "2020"],
-      //     datasets: [{
-      //       label: 'Expiry Date',
-      //       data: [90, 250, 300],
-      //       // yAxisID: 'Distict Count',
-      //       backgroundColor: [
-      //         'rgba(255, 99, 132, 0.2)',
-      //         'rgba(54, 162, 235, 0.2)',
-      //         'rgba(255, 206, 86, 0.2)'
-      //       ],
-      //       borderColor: [
-      //         'rgba(255,99,132,1)',
-      //         'rgba(54, 162, 235, 1)',
-      //         'rgba(255, 206, 86, 1)'
-      //       ],
-      //       borderWidth: 1
-      //     }, {
-      //       label: 'Line Dataset',
-      //       data: [3.9, 4.8, 1.8],
+        return {
+          attribute: 'Property_ID',
+          Values: List_Property_ID,
+          queryTask: PMSqueryTask
+        }
+      }).then(param => {
+        return that.queryManager(param)
+      }).then(function (PMSresults) {
+        console.log("PMSresults")
+        var resultset = PMSresults.features;
 
-      //       // Changes this dataset to become a line
-      //       type: 'line'
-      //     }]
-      //   },
-      //   options: {
-      //     scales: {
-      //       yAxes: [{
-      //         // ticks: {
-      //         //   beginAtZero: true
-      //         // },
-      //         scaleLabel: {
-      //           display: true,
-      //           labelString: 'Current Rent(\'000)'
-      //         }
-      //       }],
-      //       xAxes: [{
-      //         display: false
-      //       }]
-      //     },
-      //     legend: {
-      //       display: false
-      //     }
-      //   }
-      // });
+        for (var i = 0; i < resultset.length; i++) {
+          PMS.push(resultset[i].attributes);
+        }
 
-      // var NChart = new Chart(NILAChart, {
-      //   type: 'bar',
-      //   data: {
-      //     labels: ["2018", "2019", "2020"],
-      //     datasets: [{
-      //       label: 'Expiry Date',
-      //       data: [3.9, 4.8, 1.8],
-      //       // yAxisID: 'Distict Count',
-      //       backgroundColor: [
-      //         'rgba(255, 99, 132, 0.2)',
-      //         'rgba(54, 162, 235, 0.2)',
-      //         'rgba(255, 206, 86, 0.2)'
-      //       ],
-      //       borderColor: [
-      //         'rgba(255,99,132,1)',
-      //         'rgba(54, 162, 235, 1)',
-      //         'rgba(255, 206, 86, 1)'
-      //       ],
-      //       borderWidth: 1
-      //     }]
-      //   },
-      //   options: {
-      //     scales: {
-      //       yAxes: [{
-      //         // ticks: {
-      //         //   beginAtZero: true
-      //         // },
-      //         scaleLabel: {
-      //           display: true,
-      //           labelString: 'NILA (\'000)'
-      //         }
-      //       }]
-      //     },
-      //     legend: {
-      //       display: false
-      //     }
-      //   }
-      // });
+        console.log(tenancy)
+        console.log(IDTA)
+        console.log(PMS)
 
-      var NChart = new Chart(NILAChart, {
-        type: 'line',
-        data: {
-          labels: ['2018', '2019', '2020'],
-          datasets: [{
-            label: 'Current Rent',
-            yAxisID: 'Current Rent',
-            data: [90000, 250000, 300000],
-            backgroundColor: 'rgba(255, 255, 255, 0.0)',
-            // backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255,99,132,1)',
-            borderWidth: 2,
-            xAxisID: "x-axis1",
-          }, {
-            label: 'NILA',
-            yAxisID: 'NILA',
-            data: [3009, 4800, 1800],
-            backgroundColor: 'rgba(255, 255, 255, 0.0)',
-            // backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            // type: 'line',
-            borderWidth: 1,
-            xAxisID: "x-axis1",
-          }]
-        },
-        options: {
-          scales: {
-            xAxes: [{
-              stacked: true,
-              id: "x-axis1",
-              // barThickness: 70,
-            }],
-            yAxes: [{
-              id: 'Current Rent',
-              type: 'linear',
-              position: 'left',
-              scaleLabel: {
-                display: true,
-                labelString: 'Current Rent'
+        var objArr = { year: [], NLA: [] }
+        for (var i = 0; i < PMS.length; i++) {
+          if (PMS[i].END_DATE != null && new Date(PMS[i].START_DATE) < new Date()) {
+            var EndDate = new Date(PMS[i].END_DATE)
+            var endYear = EndDate.getFullYear().toString()
+            var yearIndex = objArr.year.indexOf(endYear)
+
+            if (yearIndex == -1) {
+              if(objArr.year.length == 0){
+                objArr.year.push(endYear)
+                objArr.NLA.push(PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
+                continue
               }
+
+              for (var j = 0; j < objArr.year.length; j++) {
+                if(endYear<objArr.year[j]){
+                  objArr.year.splice(j,0,endYear)
+                  objArr.NLA.splice(j,0,PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
+                  break
+                }
+                if(j==objArr.year.length-1){
+                  objArr.year.push(endYear)
+                  objArr.NLA.push(PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
+                  break
+                }
+              }
+            }else{
+              objArr.NLA[yearIndex] +=PMS[i].TOTAL_PROP_BLDG_GFA_SQM
+            }
+
+          }
+        }
+
+        var NChart = new Chart(NLAChart, {
+          type: 'line',
+          data: {
+            labels: objArr.year,
+            datasets: [{
+              label: 'Current Rent',
+              yAxisID: 'Current Rent',
+              // data: [90000, 250000, 300000],
+              backgroundColor: 'rgba(255, 255, 255, 0.0)',
+              // backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderColor: 'rgba(255,99,132,1)',
+              borderWidth: 2,
+              xAxisID: "x-axis1",
             }, {
-              id: 'NILA',
-              type: 'linear',
-              position: 'right',
-              scaleLabel: {
-                display: true,
-                labelString: 'NILA'
-              }
+              label: 'NLA',
+              yAxisID: 'NLA',
+              data: objArr.NLA,
+              backgroundColor: 'rgba(255, 255, 255, 0.0)',
+              // backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              // type: 'line',
+              borderWidth: 1,
+              xAxisID: "x-axis1",
             }]
           },
-          legend: {
-            display: true
+          options: {
+            scales: {
+              xAxes: [{
+                stacked: true,
+                id: "x-axis1",
+                // barThickness: 70,
+              }],
+              yAxes: [{
+                id: 'Current Rent',
+                type: 'linear',
+                position: 'left',
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Current Rent'
+                }
+              }, {
+                id: 'NLA',
+                type: 'linear',
+                position: 'right',
+                scaleLabel: {
+                  display: true,
+                  labelString: 'NLA'
+                }
+              }]
+            },
+            legend: {
+              display: true
+            }
+          }
+        });
+      });
+    },
+
+    queryManager: function (param) {
+      var query = new Query();
+      var whereStatement = "SnapshotDate = '" + this.SnapshotDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + "'";
+
+      query.returnGeometry = false;
+      query.outFields = ["*"];
+
+      var first = true
+      for (var i = 0; i < param.Values.length; i++) {
+        if (param.Values[i] == '') {
+          continue;
+        } else {
+          if (first) {
+            whereStatement += " AND (" + param.attribute + " ='" + param.Values[i] + "'"
+            first = false
+          } else {
+            whereStatement += " OR " + param.attribute + " ='" + param.Values[i] + "'"
           }
         }
-      });
-      var LAChart = new Chart(LeasingActivityChart, {
-        type: 'pie',
-        data: {
-          datasets: [{
-            data: [49, 78],
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-            ],
-          }],
 
-          // These labels appear in the legend and in the tooltips when hovering different arcs
-          labels: [
-            'Renewals',
-            'New leases'
-          ]
+        if (!first && i == param.Values.length - 1) {
+          whereStatement += ")"
         }
-      });
-      var TMChart = new Chart(TenantMixChart, {
-        type: 'bar',
-        data: {
-          labels: ["Residential", "Commercial", "C & Cl", "Industrial"],
-          datasets: [{
-            label: 'Expiry Date',
-            data: [111, 9, 6, 1],
-            // yAxisID: 'Distict Count',
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)'
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true
-              }
-            }]
-          }
-        }
-      });
+      }
+      query.where = whereStatement;
 
+      // return query
+      return param.queryTask.execute(query)
     }
 
   });

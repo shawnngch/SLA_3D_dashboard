@@ -1,46 +1,41 @@
 ﻿<div class="container">
 	<div class="filter-container">
 		Filter by Tenant:
-		<!-- <div class="filter"></div> --><br/>
-		<select name="cars" class="filter">
-				<option value=""></option>
-				<option value="1">first</option>
-				<option value="2">second</option>
-				<option value="3">third</option>
-				<option value="4">fourth</option>
-			  </select>
+		<br />
+		<select name="cars" class="filter" data-dojo-attach-point="TenantFilter">
+		</select>
 	</div>
 	<section class="inner-wrapper-3" id="col-container">
-		<section class="one-half-col">
-			<section class="card one-half-row" id="Revenue">
+		<section class="jimu-r-row row-1-2">
+			<section class="card col-1-2" id="Revenue">
 				<h3>Portfolio Lease Expiry Profile</h3>
-					<!-- <canvas data-dojo-attach-point="LeaseExpiryChart" height="90px"></canvas> -->
-					<canvas data-dojo-attach-point="NILAChart"></canvas>
+				<!-- <canvas data-dojo-attach-point="LeaseExpiryChart" height="90px"></canvas> -->
+				<canvas data-dojo-attach-point="NLAChart"></canvas>
 			</section>
-			<section class="card one-half-row" id="LeaseDue">
+			<section class="card col-1-2" id="LeaseDue">
 				<h3>Leases due for expiry in 6 months</h3>
 				<table>
 					<tr>
-						<td rowspan="3"><strong>20</strong></td>
+						<td rowspan="3"><strong data-dojo-attach-point="expiringTotal">20</strong></td>
 						<td>Renewal</td>
-						<td>10</td>
+						<td data-dojo-attach-point="expiringRenewal">10</td>
 					</tr>
 					<tr>
 						<td>WOC</td>
-						<td>5</td>
+						<td data-dojo-attach-point="expiringWOC">5</td>
 					</tr>
 					<tr>
 						<td>Tender</td>
-						<td>5</td>
+						<td data-dojo-attach-point="expiringTender">5</td>
 					</tr>
 				</table>
 
 			</section>
 		</section>
-		<section class="one-half-col">
-			<section class="card">
+		<section class="jimu-r-row row-1-2">
+			<section class="card col-1-1">
 				<h3>Account Information</h3>
-				
+
 			</section>
 		</section>
 	</section>
