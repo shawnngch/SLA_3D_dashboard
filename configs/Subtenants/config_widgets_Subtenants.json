@@ -1,0 +1,62 @@
+{
+  "editor": {
+    "showDeleteButton": true,
+    "prompOnSave": false,
+    "promptOnDelete": true,
+    "removeOnSave": true,
+    "layerInfos": [
+      {
+        "featureLayer": {
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/1",
+          "layerAllowsCreate": true,
+          "layerAllowsUpdate": true,
+          "layerAllowsDelete": true,
+          "layerAllowGeometryUpdates": true
+        },
+        "disableGeometryUpdate": true,
+        "allowUpdateOnly": false,
+        "allowDelete": false
+      },
+      {
+        "featureLayer": {
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/0",
+          "layerAllowsCreate": true,
+          "layerAllowsUpdate": true,
+          "layerAllowsDelete": true,
+          "layerAllowGeometryUpdates": true
+        },
+        "disableGeometryUpdate": true,
+        "allowUpdateOnly": false,
+        "allowDelete": false
+      },
+      {
+        "featureLayer": {
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/2",
+          "layerAllowsCreate": true,
+          "layerAllowsUpdate": true,
+          "layerAllowsDelete": true,
+          "layerAllowGeometryUpdates": true
+        },
+        "disableGeometryUpdate": true,
+        "allowUpdateOnly": false,
+        "allowDelete": false
+      },
+      {
+        "featureLayer": {
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/3",
+          "layerAllowsCreate": true,
+          "layerAllowsUpdate": true,
+          "layerAllowsDelete": true,
+          "layerAllowGeometryUpdates": true
+        },
+        "disableGeometryUpdate": true,
+        "allowUpdateOnly": false,
+        "allowDelete": false
+      }
+    ],
+    "displayPromptOnSave": true,
+    "displayPromptOnDelete": true,
+    "useFilterEditor": false,
+    "editDescription": "Select a template to create features"
+  }
+}

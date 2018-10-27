@@ -192,3 +192,10 @@
 /*.slide-widget-expand .esri-attribution{
 	bottom: 74px;
 }*/
+.filter-container{
+	float: left;
+	padding: 20px;
+	color: lightgrey;
+    font-weight: bold;
+	
+}

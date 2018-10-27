@@ -231,6 +231,17 @@
     },
     "widgets": [
       {
+        "uri": "widgets/Filters/Widget",
+        "version": "2.9",
+        "id": "widgets_Filters",
+        "name": "Filters",
+        "url": "/widgets/Filters/",
+        "index": 5,
+        "icon": "images/Icons/Filters.png",
+        "config": "configs/Filters/config_widgets_Filters.json",
+        "mainConfig": "configs/mainConfig.json"
+      },
+      {
         "uri": "widgets/Overview/Widget",
         "version": "2.9",
         "id": "widgets_Overview",
@@ -238,7 +249,8 @@
         "url": "/widgets/Overview/",
         "index": 6,
         "icon": "images/Icons/Overview.png",
-        "config": "configs/Overview/config_widgets_Overview.json"
+        "config0": "configs/Overview/config_widgets_Overview.json",
+        "config": "configs/mainConfig.json"
       },
       {
         "uri": "widgets/Leasing/Widget",
@@ -248,7 +260,8 @@
         "url": "/widgets/Leasing/",
         "index": 7,
         "icon": "images/Icons/Leasing.png",
-        "config": "configs/Leasing/config_widgets_Leasing.json"
+        "config": "configs/Leasing/config_widgets_Leasing.json",
+        "mainConfig": "configs/mainConfig.json"
       },
       {
         "uri": "widgets/Sub-tenants/Widget",
@@ -257,7 +270,9 @@
         "name": "Sub-tenants",
         "url": "/widgets/Sub-tenants/",
         "index": 8,
-        "icon": "images/Icons/Sub-tenants.png"
+        "icon": "images/Icons/Sub-tenants.png",
+        "config": "configs/Subtenants/config_widgets_Subtenants.json",
+        "mainConfig": "configs/mainConfig.json"
       },
       {
         "uri": "widgets/Marketing/Widget",
@@ -283,6 +298,18 @@
         "index": 11,
         "id": "widgets_Legend_Widget_26",
         "url": "/widgets/Legend/"
+      },
+      {
+        "uri": "widgets/Slides/Widget",
+        "version": "2.9",
+        "id": "widgets_Slides_Widget_12",
+        "name": "Slides",
+        "url": "/widgets/Slides/",
+        "position": {
+          "relativeTo": "map"
+        },
+        "index": 12,
+        "icon": "widgets/Slides/images/icon.png"
       }
     ],
     "groups": []

@@ -1,0 +1,245 @@
+{
+    "layerInfos": [
+        {
+            "name":"PMS",
+            "featureLayer": {
+                "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/1",
+                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/PMS_INFO/FeatureServer/0",
+                "layerAllowsCreate": true,
+                "layerAllowsUpdate": true,
+                "layerAllowsDelete": true,
+                "layerAllowGeometryUpdates": true
+            },
+            "disableGeometryUpdate": true,
+            "allowUpdateOnly": false,
+            "allowDelete": false
+        },
+        {
+            "name":"ID_TA",
+            "featureLayer": {
+                "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/0",
+                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/PROPERTY_ID/FeatureServer/0",
+                "layerAllowsCreate": true,
+                "layerAllowsUpdate": true,
+                "layerAllowsDelete": true,
+                "layerAllowGeometryUpdates": true
+            },
+            "disableGeometryUpdate": true,
+            "allowUpdateOnly": false,
+            "allowDelete": false
+        },
+        {
+            "name":"sub_tenants",
+            "featureLayer": {
+                "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/2",
+                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/TANGLIN_VILLAGE_SUBTENANT/FeatureServer/0",
+                "layerAllowsCreate": true,
+                "layerAllowsUpdate": true,
+                "layerAllowsDelete": true,
+                "layerAllowGeometryUpdates": true
+            },
+            "disableGeometryUpdate": true,
+            "allowUpdateOnly": false,
+            "allowDelete": false
+        },
+        {
+            "name":"tenancy",
+            "featureLayer": {
+                "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/3",
+                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/TANGLIN_VILLAGE_TENANCIES/FeatureServer/0",
+                "layerAllowsCreate": true,
+                "layerAllowsUpdate": true,
+                "layerAllowsDelete": true,
+                "layerAllowGeometryUpdates": true
+            },
+            "disableGeometryUpdate": true,
+            "allowUpdateOnly": false,
+            "allowDelete": false
+        }
+    ],
+    "Renderer": [
+        {
+            "Display": "",
+            "Value": "",
+            "Renderer": {
+                "type": "simple",
+                "symbol": {
+                    "type": "mesh-3d",
+                    "symbolLayers": [
+                        {
+                            "type": "fill",
+                            "material": {
+                                "color": "white"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "Display": "SLA Department In Charge",
+            "Value": "SLA_DeptInCharge",
+            "Renderer0": {
+                "type": "unique-value",
+                "field": "subtenancy_info_SLA_Dept_in_Cha",
+                "defaultSymbol": {
+                    "type": "mesh-3d"
+                },
+                "uniqueValueInfos": [
+                    {
+                        "value": "EM",
+                        "symbol": {
+                            "type": "mesh-3d",
+                            "symbolLayers": [
+                                {
+                                    "type": "fill",
+                                    "material": {
+                                        "color": "red"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "value": "IHL",
+                        "symbol": {
+                            "type": "mesh-3d",
+                            "symbolLayers": [
+                                {
+                                    "type": "fill",
+                                    "material": {
+                                        "color": "green"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Renderer": {
+                "type": "unique-value",
+                "field": "subtenancy_info_SLA_Dept_in_Cha",
+                "uniqueValueInfos": [
+                    {
+                        "value": "EM",
+                        "symbol": {
+                            "type": "mesh-3d",
+                            "symbolLayers": [
+                                {
+                                    "type": "fill",
+                                    "material": {
+                                        "color": "red"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "value": "IHL",
+                        "symbol": {
+                            "type": "mesh-3d",
+                            "symbolLayers": [
+                                {
+                                    "type": "fill",
+                                    "material": {
+                                        "color": "green"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Display": "Occupancy Status",
+            "Value": "Occupancy",
+            "Renderer": {
+                "type": "unique-value",
+                "field": "subtenancy_info_Mode_of_Occupat",
+                "uniqueValueInfos": [
+                    {
+                        "value": "TA",
+                        "symbol": {
+                            "type": "mesh-3d",
+                            "symbolLayers": [
+                                {
+                                    "type": "fill",
+                                    "material": {
+                                        "color": "red"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "value": null,
+                        "symbol": {
+                            "type": "mesh-3d",
+                            "symbolLayers": [
+                                {
+                                    "type": "fill",
+                                    "material": {
+                                        "color": "#E0FFFF"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "Display": "Rent Rate(psm)",
+            "Value": "RentRatePSM",
+            "Renderer": {
+                "type": "simple",
+                "symbol": {
+                    "type": "simple-fill"
+                },
+                "visualVariables": [
+                    {
+                        "type": "color",
+                        "field": "POPULATION",
+                        "stops": [
+                            {
+                                "value": 100,
+                                "color": "#FFFCD4"
+                            },
+                            {
+                                "value": 500,
+                                "color": "#0D2644"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "Display": "No. of sub-tenants",
+            "Value": "NoOfSubtenants",
+            "Renderer": {
+                "type": "simple",
+                "symbol": {
+                    "type": "simple-fill"
+                },
+                "visualVariables": [
+                    {
+                        "type": "color",
+                        "field": "POPULATION",
+                        "stops": [
+                            {
+                                "value": 100,
+                                "color": "#FFFCD4"
+                            },
+                            {
+                                "value": 500,
+                                "color": "#0D2644"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -38,6 +38,9 @@ define([
     baseClass: 'jimu-widget-overview',
     _config: null,
     SnapshotDate: window.SnapshotDate,
+    tenancyList:[],
+    TADT: null,
+    DataTableLoaded: false,
 
     //lighting._lastTimezone:The time zone which map shows
     //lighting.date: The date map uses
@@ -50,231 +53,298 @@ define([
 
       var SnapshotDate = this.SnapshotDate
       if (!this.SnapshotDate) {
-        console.log("no value")
+        console.log("no SnapshotDate")
         SnapshotDate = new Date("2018-10-01");
         this.SnapshotDate = SnapshotDate;
-      } else {
-        console.log(SnapshotDate)
       }
 
-      var optionsfull = { year: 'numeric', month: 'long', day: 'numeric' };
-      var tenancyQueryTask = new QueryTask({
-        url: this._config.layerInfos[3].featureLayer.url
-      });
+      // //Check if Data not loaded
+      // if (window.PMS == null || window.IDTA == null || window.tenancy == null || window.subtenants == null) {
+        //Load all data
+        var PMS = [], IDTA = [], subtenants = [], tenancy = [];
 
-      var query = new Query();
-      query.returnGeometry = false;
-      query.where = "SnapshotDate = '" + SnapshotDate.toLocaleDateString('en-US', optionsfull) + "'";
-      query.outFields = ["*"];
+        var pmsQueryTask = new QueryTask({
+          url: this._config.layerInfos[0].featureLayer.url
+        });
+        var tenancyQueryTask = new QueryTask({
+          url: this._config.layerInfos[3].featureLayer.url
+        });
+        var idtaQueryTask = new QueryTask({
+          url: this._config.layerInfos[1].featureLayer.url
+        });
+        var subtenantsQueryTask = new QueryTask({
+          url: this._config.layerInfos[1].featureLayer.url
+        });
 
-      tenancyQueryTask.execute(query).then(function (tenancyResults) {
-        var resultset = tenancyResults.features;
-        var tenants = []
-        that.TenantFilter.innerHTML = "<option></option>"
+        var query = new Query();
+        query.returnGeometry = false;
+        // query.where = "timeline = '" + new Date(this.slider.get("value")).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + "'";
+        query.where = "1=1"
+        query.outFields = ["*"];
 
-        for (var i = 0; i < resultset.length; i++) {
-          tenants.push({
-            TA_Account: resultset[i].attributes.TA_Account,
-            Licensee_Tenant_Name: resultset[i].attributes.Licensee_Tenant_Name
-          })
-
-          that.TenantFilter.innerHTML += "<option value='" + resultset[i].attributes.TA_Account + "'>" + resultset[i].attributes.TA_Account + " - " + resultset[i].attributes.Licensee_Tenant_Name + "</option>"
-        }
-
-        that.own(on(that.TenantFilter, 'change', lang.hitch(that, that._onFilterChanged)));
-        that._onFilterChanged();
-      })
-
+        pmsQueryTask.execute(query).then(function (pmsResults) {
+          var resultset = pmsResults.features;
+          console.log("PMS");
+          for (var i = 0; i < resultset.length; i++) {
+            PMS.push(resultset[i].attributes);
+          }
+          window.PMS = PMS
+        }).then(function () {
+          return tenancyQueryTask.execute(query);
+        }).then(function (tenancyResults) {
+          var resultset = tenancyResults.features;
+          console.log("tenancy");
+          for (var i = 0; i < resultset.length; i++) {
+            tenancy.push(resultset[i].attributes);
+          }
+          window.tenancy = tenancy
+        }).then(function () {
+          return idtaQueryTask.execute(query);
+        }).then(function (idtaResults) {
+          var resultset = idtaResults.features;
+          console.log("IDTA");
+          for (var i = 0; i < resultset.length; i++) {
+            IDTA.push(resultset[i].attributes);
+          }
+          window.IDTA = IDTA
+        }).then(function () {
+          return subtenantsQueryTask.execute(query);
+        }).then(function (subtenantsResults) {
+          var resultset = subtenantsResults.features;
+          console.log("subtenants");
+          for (var i = 0; i < resultset.length; i++) {
+            subtenants.push(resultset[i].attributes);
+          }
+          window.subtenants = subtenants
+          return
+        }).then(function () {
+          // Actual work after loading all data
+          that._AfterLoad()
+        });
+      // } else {
+      //   this._AfterLoad();
+      // }
     },
 
     _onFilterChanged: function () {
       console.log("_onFilterChanged")
-      var optionsfull = { year: 'numeric', month: 'long', day: 'numeric' };
-      var that = this;
       var NLAChart = this.NLAChart;
-      var PMS = [], IDTA = [], subTenants = [], tenancy = [];
-
-      var PMSqueryTask = new QueryTask({
-        url: this._config.layerInfos[0].featureLayer.url
-      });
-      var tenancyQueryTask = new QueryTask({
-        url: this._config.layerInfos[3].featureLayer.url
-      });
-      var IDTAqueryTask = new QueryTask({
-        url: this._config.layerInfos[1].featureLayer.url
-      });
-      var param0 =
-      {
-        attribute: 'TA_Account',
-        Values: [this.TenantFilter.value],
-        queryTask: tenancyQueryTask
+      function findWithAttr(array, attr, value) {
+        for (var i = 0; i < array.length; i += 1) {
+          if (array[i][attr] === value) {
+            return i;
+          }
+        }
+        return -1;
       }
 
-      this.queryManager(param0).then(function (tenancyResults) {
-        console.log("tenancyResults")
-        var resultset = tenancyResults.features;
-        var List_TA_Account = []
-        for (var i = 0; i < resultset.length; i++) {
-          tenancy.push(resultset[i].attributes);
-          List_TA_Account.push(resultset[i].attributes.TA_Account)
+      //Full set of data
+      var IDTA0 = window.IDTA, tenancy0 = window.tenancy, PMS0 = window.PMS;
+      //Data based on filter
+      var IDTA = [], tenancy = [], PMS = [];
+
+      for (var i = 0; i < tenancy0.length; i++) {
+        if (tenancy0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+          tenancy.push(tenancy0[i])
         }
-
-        return {
-          attribute: 'TA_Account',
-          Values: List_TA_Account,
-          queryTask: IDTAqueryTask
+      }
+      for (var i = 0; i < IDTA0.length; i++) {
+        if (IDTA0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+          IDTA.push(IDTA0[i])
         }
-
-      }).then(param => {
-        return that.queryManager(param)
-      }).then(function (IDTAresults) {
-        console.log("IDTAresults")
-        var resultset = IDTAresults.features;
-        var List_Property_ID = []
-
-        for (var i = 0; i < resultset.length; i++) {
-          IDTA.push(resultset[i].attributes);
-          List_Property_ID.push(resultset[i].attributes.Property_ID)
+      }
+      for (var i = 0; i < IDTA.length; i++) {
+        if (!(findWithAttr(PMS0, "", IDTA[i].PROPERTY_ID))) {
+          PMS.push(PMS0[i])
         }
+      }
 
-        return {
-          attribute: 'Property_ID',
-          Values: List_Property_ID,
-          queryTask: PMSqueryTask
-        }
-      }).then(param => {
-        return that.queryManager(param)
-      }).then(function (PMSresults) {
-        console.log("PMSresults")
-        var resultset = PMSresults.features;
+      //Get Date for NLA Chart
+      var objArr = { year: [], NLA: [] }
+      for (var i = 0; i < PMS.length; i++) {
+        if (PMS[i].END_DATE != null && new Date(PMS[i].START_DATE) < new Date()) {
+          var EndDate = new Date(PMS[i].END_DATE)
+          var endYear = EndDate.getFullYear().toString()
+          var yearIndex = objArr.year.indexOf(endYear)
 
-        for (var i = 0; i < resultset.length; i++) {
-          PMS.push(resultset[i].attributes);
-        }
+          if (yearIndex == -1) {
+            if (objArr.year.length == 0) {
+              objArr.year.push(endYear)
+              objArr.NLA.push(PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
+              continue
+            }
 
-        console.log(tenancy)
-        console.log(IDTA)
-        console.log(PMS)
-
-        var objArr = { year: [], NLA: [] }
-        for (var i = 0; i < PMS.length; i++) {
-          if (PMS[i].END_DATE != null && new Date(PMS[i].START_DATE) < new Date()) {
-            var EndDate = new Date(PMS[i].END_DATE)
-            var endYear = EndDate.getFullYear().toString()
-            var yearIndex = objArr.year.indexOf(endYear)
-
-            if (yearIndex == -1) {
-              if(objArr.year.length == 0){
+            for (var j = 0; j < objArr.year.length; j++) {
+              if (endYear < objArr.year[j]) {
+                objArr.year.splice(j, 0, endYear)
+                objArr.NLA.splice(j, 0, PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
+                break
+              }
+              if (j == objArr.year.length - 1) {
                 objArr.year.push(endYear)
                 objArr.NLA.push(PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
-                continue
+                break
               }
-
-              for (var j = 0; j < objArr.year.length; j++) {
-                if(endYear<objArr.year[j]){
-                  objArr.year.splice(j,0,endYear)
-                  objArr.NLA.splice(j,0,PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
-                  break
-                }
-                if(j==objArr.year.length-1){
-                  objArr.year.push(endYear)
-                  objArr.NLA.push(PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
-                  break
-                }
-              }
-            }else{
-              objArr.NLA[yearIndex] +=PMS[i].TOTAL_PROP_BLDG_GFA_SQM
             }
-
-          }
-        }
-
-        var NChart = new Chart(NLAChart, {
-          type: 'line',
-          data: {
-            labels: objArr.year,
-            datasets: [{
-              label: 'Current Rent',
-              yAxisID: 'Current Rent',
-              // data: [90000, 250000, 300000],
-              backgroundColor: 'rgba(255, 255, 255, 0.0)',
-              // backgroundColor: 'rgba(255, 99, 132, 0.2)',
-              borderColor: 'rgba(255,99,132,1)',
-              borderWidth: 2,
-              xAxisID: "x-axis1",
-            }, {
-              label: 'NLA',
-              yAxisID: 'NLA',
-              data: objArr.NLA,
-              backgroundColor: 'rgba(255, 255, 255, 0.0)',
-              // backgroundColor: 'rgba(54, 162, 235, 0.2)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              // type: 'line',
-              borderWidth: 1,
-              xAxisID: "x-axis1",
-            }]
-          },
-          options: {
-            scales: {
-              xAxes: [{
-                stacked: true,
-                id: "x-axis1",
-                // barThickness: 70,
-              }],
-              yAxes: [{
-                id: 'Current Rent',
-                type: 'linear',
-                position: 'left',
-                scaleLabel: {
-                  display: true,
-                  labelString: 'Current Rent'
-                }
-              }, {
-                id: 'NLA',
-                type: 'linear',
-                position: 'right',
-                scaleLabel: {
-                  display: true,
-                  labelString: 'NLA'
-                }
-              }]
-            },
-            legend: {
-              display: true
-            }
-          }
-        });
-      });
-    },
-
-    queryManager: function (param) {
-      var query = new Query();
-      var whereStatement = "SnapshotDate = '" + this.SnapshotDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + "'";
-
-      query.returnGeometry = false;
-      query.outFields = ["*"];
-
-      var first = true
-      for (var i = 0; i < param.Values.length; i++) {
-        if (param.Values[i] == '') {
-          continue;
-        } else {
-          if (first) {
-            whereStatement += " AND (" + param.attribute + " ='" + param.Values[i] + "'"
-            first = false
           } else {
-            whereStatement += " OR " + param.attribute + " ='" + param.Values[i] + "'"
+            objArr.NLA[yearIndex] += PMS[i].TOTAL_PROP_BLDG_GFA_SQM
           }
-        }
 
-        if (!first && i == param.Values.length - 1) {
-          whereStatement += ")"
         }
       }
-      query.where = whereStatement;
 
-      // return query
-      return param.queryTask.execute(query)
+      var NChart = new Chart(NLAChart, {
+        type: 'bar',
+        data: {
+          labels: objArr.year,
+          datasets: [{
+            label: 'Current Rent',
+            yAxisID: 'Current Rent',
+            // data: [90000, 250000, 300000,250000, 300000],
+            backgroundColor: 'rgba(255, 255, 255, 0.0)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255,99,132,1)',
+            borderWidth: 2,
+            xAxisID: "x-axis1",
+          }, {
+            label: 'NLA',
+            yAxisID: 'NLA',
+            data: objArr.NLA,
+            backgroundColor: 'rgba(255, 255, 255, 0.0)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            // type: 'line',
+            borderWidth: 1,
+            xAxisID: "x-axis1",
+          }]
+        },
+        options: {
+          scales: {
+            xAxes: [{
+              stacked: true,
+              id: "x-axis1",
+              // barThickness: 70,
+            }],
+            yAxes: [{
+              id: 'Current Rent',
+              type: 'linear',
+              position: 'left',
+              scaleLabel: {
+                display: true,
+                labelString: 'Current Rent'
+              }
+            }, {
+              id: 'NLA',
+              type: 'linear',
+              position: 'right',
+              scaleLabel: {
+                display: true,
+                labelString: 'NLA'
+              }
+            }]
+          },
+          legend: {
+            display: true
+          }
+        }
+      });
+
+      //Get data for expiryTable
+      var totalExpiring = 0, allocationNo = { modeOfAllocation: [], qty: [] }, TATableData = [];
+      const tenancyAttributes = Object.keys(tenancy[0])
+      for (var i = 0; i < tenancy.length; i++) {
+        if (tenancy[i].ExistingTAExpiryDate > new Date()) {
+          var MOA = tenancy[i].Mode_of_allocation
+          var modeIndex = allocationNo.modeOfAllocation.indexOf(MOA)
+          totalExpiring += 1
+          if (modeIndex == -1) {
+            allocationNo.modeOfAllocation.push(tenancy[i].Mode_of_allocation)
+            allocationNo.qty.push(1)
+          } else {
+            allocationNo.qty[modeIndex] += 1
+          }
+        }
+        const tenancyRowArray = Object.values(tenancy[i])
+        TATableData.push(tenancyRowArray)
+      }
+
+
+      //Set data for expiryTable
+      this.expiringTable.innerHTML = ""
+      for (var i = 0; i < allocationNo.modeOfAllocation.length; i++) {
+        var rowHTML = "<tr>"
+        if (i == 0) {
+          rowHTML += "<td rowspan=" + allocationNo.modeOfAllocation.length + "><strong>" + totalExpiring + "</strong></td>"
+        }
+        rowHTML += "<td>" + allocationNo.modeOfAllocation[i] + "</td><td>" + allocationNo.qty[i] + "</td></tr>"
+        this.expiringTable.innerHTML += rowHTML
+      }
+
+      var colNames = []
+      for (var i = 0; i < tenancyAttributes.length; i++) {
+        colNames.push({ title: tenancyAttributes[i] })
+      }
+
+      if (this.DataTableLoaded == false) {
+        this.TADT = $('#TATable').DataTable({
+          data: TATableData,
+          columns: colNames,
+          columnDefs: [
+            {
+              targets: [0],
+              visible: false
+            },
+            {
+              targets: [1],
+              visible: false
+            },
+            {
+              targets: [2],
+              visible: false
+            },
+            {
+              targets: [3],
+              visible: false
+            },
+            {
+              targets: [12],
+              visible: false
+            }
+          ],
+          scrollY: '250',
+          scrollX: true,
+          paging: false,
+          dom: 't'
+        });
+        this.DataTableLoaded = true
+        console.log("DataTableLoaded = " + this.DataTableLoaded)
+        console.log(TATableData)
+        console.log(colNames)
+      } else {
+        this.TADT.column(2).search(this.TenantFilter.value).draw();
+      }
+
+      // $('#TATable tbody').on('click', 'tr', function () {
+      //   if ($(this).hasClass('selected')) {
+      //     $(this).removeClass('selected');
+      //   }
+      //   else {
+      //     $('#TATable').DataTable().$('tr.selected').removeClass('selected');
+      //     $(this).addClass('selected');
+      //   }
+      // });
+    },
+
+    _AfterLoad: function(){
+      this.TenantFilter.innerHTML = "<option></option>"
+      for (var i = 0; i < window.tenancy.length; i++) {
+        if(this.tenancyList.indexOf(window.tenancy[i].TA_Account)==-1){
+          this.TenantFilter.innerHTML += "<option value='" + window.tenancy[i].TA_Account + "'>" + window.tenancy[i].TA_Account + " - " + window.tenancy[i].Licensee_Tenant_Name + "</option>"
+          this.tenancyList.push(window.tenancy[i].TA_Account)
+        }
+      }
+      this.own(on(this.TenantFilter, 'change', lang.hitch(this, this._onFilterChanged)));
+      this._onFilterChanged();
     }
 
   });
