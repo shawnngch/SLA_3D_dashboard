@@ -37,6 +37,7 @@ define([
 
     baseClass: 'jimu-widget-overview',
     _config: null,
+    timelineDates: [],
     SnapshotDate: window.SnapshotDate,
     tenancyList:[],
     TADT: null,
@@ -48,7 +49,8 @@ define([
     postCreate: function () {
       this.inherited(arguments);
 
-      this._config = lang.clone(this.config.editor);
+      // this._config = lang.clone(this.config.editor);
+      this._config = lang.clone(this.config);
       var that = this;
 
       var SnapshotDate = this.SnapshotDate
@@ -128,10 +130,18 @@ define([
 
     _onFilterChanged: function () {
       console.log("_onFilterChanged")
+
+      for (var i = 0; i < window.PMS.length; i++) {
+        if (this.timelineDates.indexOf(window.PMS[i].TIMELINE) == -1) {
+          this.timelineDates.push(window.PMS[i].TIMELINE)
+        }
+      }
+      var maxTimeline = Math.max.apply(null, this.timelineDates)
+
       var NLAChart = this.NLAChart;
-      function findWithAttr(array, attr, value) {
+      function findWithAttr(array, attr, value, timeline) {
         for (var i = 0; i < array.length; i += 1) {
-          if (array[i][attr] === value) {
+          if (array[i][attr] === value && array[i]["TIMELINE"] == timeline) {
             return i;
           }
         }
@@ -144,18 +154,19 @@ define([
       var IDTA = [], tenancy = [], PMS = [];
 
       for (var i = 0; i < tenancy0.length; i++) {
-        if (tenancy0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+        if ((tenancy0[i].TA_ACCOUNT == this.TenantFilter.value || this.TenantFilter.value == '')&&tenancy0[i].TIMELINE == maxTimeline) {
           tenancy.push(tenancy0[i])
         }
       }
       for (var i = 0; i < IDTA0.length; i++) {
-        if (IDTA0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+        if ((IDTA0[i].TA_ACCOUNT == this.TenantFilter.value || this.TenantFilter.value == '')&&IDTA0[i].TIMELINE == maxTimeline) {
           IDTA.push(IDTA0[i])
         }
       }
       for (var i = 0; i < IDTA.length; i++) {
-        if (!(findWithAttr(PMS0, "", IDTA[i].PROPERTY_ID))) {
-          PMS.push(PMS0[i])
+        var PropertyIndex = findWithAttr(PMS0, "PROPERTY_ID", IDTA[i].PROPERTY_ID, maxTimeline)
+        if (PropertyIndex !=-1) {
+          PMS.push(PMS0[PropertyIndex])
         }
       }
 
@@ -253,12 +264,12 @@ define([
       var totalExpiring = 0, allocationNo = { modeOfAllocation: [], qty: [] }, TATableData = [];
       const tenancyAttributes = Object.keys(tenancy[0])
       for (var i = 0; i < tenancy.length; i++) {
-        if (tenancy[i].ExistingTAExpiryDate > new Date()) {
-          var MOA = tenancy[i].Mode_of_allocation
+        if (tenancy[i].EXISTING_TA_EXPIRY_DATE > new Date()) {
+          var MOA = tenancy[i].MODE_OF_ALLOCATION
           var modeIndex = allocationNo.modeOfAllocation.indexOf(MOA)
           totalExpiring += 1
           if (modeIndex == -1) {
-            allocationNo.modeOfAllocation.push(tenancy[i].Mode_of_allocation)
+            allocationNo.modeOfAllocation.push(tenancy[i].MODE_OF_ALLOCATION)
             allocationNo.qty.push(1)
           } else {
             allocationNo.qty[modeIndex] += 1
@@ -274,7 +285,8 @@ define([
       for (var i = 0; i < allocationNo.modeOfAllocation.length; i++) {
         var rowHTML = "<tr>"
         if (i == 0) {
-          rowHTML += "<td rowspan=" + allocationNo.modeOfAllocation.length + "><strong>" + totalExpiring + "</strong></td>"
+          rowHTML += "<td rowspan="+ allocationNo.modeOfAllocation.length +" class='td1'>Total<br><p>" + totalExpiring +"</p></td>"
+          // rowHTML += "<td rowspan=" + allocationNo.modeOfAllocation.length + "><strong>" + totalExpiring + "</strong></td>"
         }
         rowHTML += "<td>" + allocationNo.modeOfAllocation[i] + "</td><td>" + allocationNo.qty[i] + "</td></tr>"
         this.expiringTable.innerHTML += rowHTML
@@ -338,9 +350,9 @@ define([
     _AfterLoad: function(){
       this.TenantFilter.innerHTML = "<option></option>"
       for (var i = 0; i < window.tenancy.length; i++) {
-        if(this.tenancyList.indexOf(window.tenancy[i].TA_Account)==-1){
-          this.TenantFilter.innerHTML += "<option value='" + window.tenancy[i].TA_Account + "'>" + window.tenancy[i].TA_Account + " - " + window.tenancy[i].Licensee_Tenant_Name + "</option>"
-          this.tenancyList.push(window.tenancy[i].TA_Account)
+        if(this.tenancyList.indexOf(window.tenancy[i].TA_ACCOUNT)==-1){
+          this.TenantFilter.innerHTML += "<option value='" + window.tenancy[i].TA_ACCOUNT + "'>" + window.tenancy[i].TA_ACCOUNT + " - " + window.tenancy[i].LICENSEE_TENANT + "</option>"
+          this.tenancyList.push(window.tenancy[i].TA_ACCOUNT)
         }
       }
       this.own(on(this.TenantFilter, 'change', lang.hitch(this, this._onFilterChanged)));

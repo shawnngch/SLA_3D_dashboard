@@ -133,8 +133,8 @@ define([
       _loadSlider: function () {
 
         for (var i = 0; i < window.PMS.length; i++) {
-          if (this.timelineDates.indexOf(window.PMS[i].Timeline) == -1) {
-            this.timelineDates.push(window.PMS[i].Timeline)
+          if (this.timelineDates.indexOf(window.PMS[i].TIMELINE) == -1) {
+            this.timelineDates.push(window.PMS[i].TIMELINE)
           }
         }
 
@@ -177,31 +177,31 @@ define([
         var OccupiedProperties = 0, marketable = 0, unmarketable = 0, totalProperties = 0;
         var SliderVal = this.slider.get("value")
 
-        const PMS_filtered = window.PMS.filter(el => el.Timeline == SliderVal);
-        const IDTA_filtered = window.IDTA.filter(el => el.Timeline == SliderVal);
-        const tenancy_filtered = window.tenancy.filter(el => el.Timeline == SliderVal);
+        const PMS_filtered = window.PMS.filter(el => el.TIMELINE == SliderVal);
+        const IDTA_filtered = window.IDTA.filter(el => el.TIMELINE == SliderVal);
+        const tenancy_filtered = window.tenancy.filter(el => el.TIMELINE == SliderVal);
 
         for (var i = 0; i < PMS_filtered.length; i++) {
-          if (PMS_filtered[i].Timeline == this.slider.get("value")) {
+          if (PMS_filtered[i].TIMELINE == this.slider.get("value")) {
             if (PMS_filtered[i].MODE_OF_OCCUPATION != "TA") {
-              marketable += (PMS_filtered[i].Marketable_Unmarketable == "Marketable") ? 1 : 0;
-              unmarketable += (PMS_filtered[i].Marketable_Unmarketable == "Unmarketable") ? 1 : 0;
+              marketable += (PMS_filtered[i].MARKETABLE_UNMARKETABLE == "Marketable") ? 1 : 0;
+              unmarketable += (PMS_filtered[i].MARKETABLE_UNMARKETABLE == "Unmarketable") ? 1 : 0;
             } else {
               OccupiedProperties += 1;
             }
             totalProperties += 1
             //IDTA-------------------------------------------
-            var propertyID = PMS_filtered[i].PROPERTY_ID;
+            var PROPERTY_ID = PMS_filtered[i].PROPERTY_ID;
 
-            var IDTAindex = findWithAttr(IDTA_filtered, "Property_ID", propertyID);
+            var IDTAindex = findWithAttr(IDTA_filtered, "PROPERTY_ID", PROPERTY_ID);
             if (IDTAindex === -1) { continue; }
 
-            var TA_Account = IDTA_filtered[IDTAindex].TA_Account
-            var tenancyIndex = findWithAttr(tenancy, "TA_Account", TA_Account);
+            var TA_ACCOUNT = IDTA_filtered[IDTAindex].TA_ACCOUNT 
+            var tenancyIndex = findWithAttr(tenancy, "TA_ACCOUNT", TA_ACCOUNT );
             if (tenancyIndex === -1) { continue; }
 
             var PMSstartDate = PMS_filtered[i].START_DATE;
-            var tenancyStartDate = tenancy[tenancyIndex].ExistingTAStartDate;
+            var tenancyStartDate = tenancy[tenancyIndex].EXISTING_TA_START_DATE ;
             if (PMSstartDate == tenancyStartDate) {
               newLease += 1;
             } else {
@@ -219,7 +219,8 @@ define([
 
         //tenancy-------------------------------------------------------------------------------------------------------------------
         
-        var refDate = (SliderVal == Math.max.apply(null, this.timelineDates))?new Date():SliderVal;
+        // var refDate = (SliderVal == Math.max.apply(null, this.timelineDates))?new Date().getTime():SliderVal;
+        var refDate = SliderVal;
         var grossMonthlyRentalRevenue = 0, noOfLeases = 0;
         var expiryPortfolio = { year: [], count: [], sortedYear: [], sortedCount: [] }
         var tenancyMix = { type: [], count: [] }
@@ -231,11 +232,11 @@ define([
         }
 
         for (var i = 0; i < tenancy_filtered.length; i++) {
-          grossMonthlyRentalRevenue += (tenancy_filtered[i].Monthly_rental == null) ? 0 : tenancy_filtered[i].Monthly_rental;
-          if (tenancy_filtered[i].ExistingTAStartDate <= refDate && tenancy_filtered[i].ExistingTAExpiryDate >= refDate) {
+          grossMonthlyRentalRevenue += (tenancy_filtered[i].MONTHLY_RENTAL == null) ? 0 : tenancy_filtered[i].MONTHLY_RENTAL;
+          if (tenancy_filtered[i].EXISTING_TA_START_DATE <= refDate && tenancy_filtered[i].EXISTING_TA_EXPIRY_DATE  >= refDate) {
             noOfLeases += 1;
-            var year0 = new Date(tenancy_filtered[i].ExistingTAExpiryDate).getFullYear();
-            var type0 = tenancy_filtered[i].Broad_classification_of_use;
+            var year0 = new Date(tenancy_filtered[i].EXISTING_TA_EXPIRY_DATE).getFullYear();
+            var type0 = tenancy_filtered[i].BROAD_CLASSIFICATION ;
             if (expiryPortfolio.year.includes(year0)) {
               var expiryIndex = expiryPortfolio.year.indexOf(year0);
               expiryPortfolio.count[expiryIndex] += 1;

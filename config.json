@@ -260,8 +260,8 @@
         "url": "/widgets/Leasing/",
         "index": 7,
         "icon": "images/Icons/Leasing.png",
-        "config": "configs/Leasing/config_widgets_Leasing.json",
-        "mainConfig": "configs/mainConfig.json"
+        "config0": "configs/Leasing/config_widgets_Leasing.json",
+        "config": "configs/mainConfig.json"
       },
       {
         "uri": "widgets/Sub-tenants/Widget",
