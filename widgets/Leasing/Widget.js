@@ -58,8 +58,8 @@ define([
         this.SnapshotDate = SnapshotDate;
       }
 
-      // //Check if Data not loaded
-      // if (window.PMS == null || window.IDTA == null || window.tenancy == null || window.subtenants == null) {
+      //Check if Data not loaded
+      if (window.PMS == null || window.IDTA == null || window.tenancy == null || window.subtenants == null) {
         //Load all data
         var PMS = [], IDTA = [], subtenants = [], tenancy = [];
 
@@ -121,9 +121,12 @@ define([
           // Actual work after loading all data
           that._AfterLoad()
         });
-      // } else {
-      //   this._AfterLoad();
-      // }
+      } else {
+        this._AfterLoad();
+      }
+    },
+    onOpen:function(){
+      window.lastwidget.setWidget("Overview");
     },
 
     _onFilterChanged: function () {

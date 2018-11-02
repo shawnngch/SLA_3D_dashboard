@@ -41,7 +41,7 @@ define([
       moveTopOnActive: false,
 
       // Mod by Shawn
-      maxWidth: 750,
+      maxWidth: 560,
       // maxWidth: 365,
       minWidth: 55,
       animTime: 200,

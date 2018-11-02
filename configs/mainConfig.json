@@ -3,8 +3,8 @@
         {
             "name":"PMS",
             "featureLayer": {
-                "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/1",
-                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/PMS_INFO/FeatureServer/0",
+                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/1",
+                "url1": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/PMS_INFO/FeatureServer/0",
                 "layerAllowsCreate": true,
                 "layerAllowsUpdate": true,
                 "layerAllowsDelete": true,
@@ -17,8 +17,8 @@
         {
             "name":"ID_TA",
             "featureLayer": {
-                "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/0",
-                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/PROPERTY_ID/FeatureServer/0",
+                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/0",
+                "url1": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/PROPERTY_ID/FeatureServer/0",
                 "layerAllowsCreate": true,
                 "layerAllowsUpdate": true,
                 "layerAllowsDelete": true,
@@ -31,8 +31,8 @@
         {
             "name":"sub_tenants",
             "featureLayer": {
-                "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/2",
-                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/TANGLIN_VILLAGE_SUBTENANT/FeatureServer/0",
+                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/2",
+                "url1": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/TANGLIN_VILLAGE_SUBTENANT/FeatureServer/0",
                 "layerAllowsCreate": true,
                 "layerAllowsUpdate": true,
                 "layerAllowsDelete": true,
@@ -45,8 +45,8 @@
         {
             "name":"tenancy",
             "featureLayer": {
-                "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/3",
-                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/TANGLIN_VILLAGE_TENANCIES/FeatureServer/0",
+                "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/3",
+                "url1": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/TANGLIN_VILLAGE_TENANCIES/FeatureServer/0",
                 "layerAllowsCreate": true,
                 "layerAllowsUpdate": true,
                 "layerAllowsDelete": true,

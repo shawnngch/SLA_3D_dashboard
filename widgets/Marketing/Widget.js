@@ -43,6 +43,9 @@ define([
 
       this.sceneView.when(lang.hitch(this, this._init));
     },
+    onOpen:function(){
+      window.lastwidget.setWidget("Marketing");
+    },
 
     _init: function () {
 

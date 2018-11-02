@@ -124,6 +124,9 @@ define([
       //   this._AfterLoad();
       // }
     },
+    onOpen:function(){
+      window.lastwidget.setWidget("Subtenant");
+    },
 
     _onFilterChanged: function () {
       console.log("_onFilterChanged")

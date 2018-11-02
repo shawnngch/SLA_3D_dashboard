@@ -165,7 +165,7 @@ define([
         var viewIndex = findWithAttr(this._config.ViewBy, "Value", ViewVal)
         var renderer = this._config.ViewBy[viewIndex].Renderer
 
-        var queryDef = [ClusterQuery, PropQuery, BldgQuery, floorQuery].filter(Boolean).join("OR ");
+        var queryDef = [ClusterQuery, PropQuery, BldgQuery, floorQuery].filter(Boolean).join("AND ");
 
         // update the definition expression of Buildings Tanglin layer
         this.sceneView.map.layers.forEach(function (layer) {

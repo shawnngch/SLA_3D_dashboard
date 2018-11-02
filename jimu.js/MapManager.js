@@ -226,14 +226,14 @@ define([
               url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Buildings_Tanglin/SceneServer",
               popupEnabled: true,
               outFields: ["*"],
-              visible: false
+              visible: true
               // definitionExpression: definitionExpression
             })
             var SLA_Buildings = new SceneLayer({
               url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings/SceneServer/layers/0",
               popupEnabled: true,
               outFields: ["*"],
-              visible: true
+              visible: false
             })
             this.sceneView.map.addMany([TanglinBuildings,SLA_Buildings])
           }), lang.hitch(this, function () {

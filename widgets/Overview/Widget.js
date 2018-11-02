@@ -42,8 +42,9 @@ define([
       timelineDates: [],
 
       postCreate: function () {
-        // this._config = lang.clone(this.config.editor);
-        this._config = lang.clone(this.config);
+        // window.lastwidget.setIsOverview(true);
+        this._config = lang.clone(this.config.editor);
+        // this._config = lang.clone(this.config);
         var that = this;
 
         //Load all data if not already loaded
@@ -116,6 +117,10 @@ define([
 
         this.inherited(arguments);
       },
+      onOpen:function(){
+        window.lastwidget.setWidget("Overview");
+      },
+  
       
       _ChangeView: function () {
         this.sceneView.map.layers.forEach(function (layer) {
