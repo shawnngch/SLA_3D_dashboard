@@ -51,97 +51,156 @@ define([
       name: 'filter0',
       baseClass: 'jimu-widget-filter0',
       searchDijit: null,
-      searchResults: null,
       _config: null,
-      SnapshotDate: window.SnapshotDate,
-      TADT: null,
-      lastwidget: window.lastwidget,
 
       postCreate: function () {
         console.log("Filter0 postCreate")
 
         this.listenWidgetIds.push('framework');
       },
-
       startup: function () {
-        console.log("Filter0 startup")
-
-        //Window.lastwidget Variable Listener
-        function Create(callback) {
-          var widget = null;
-          return {
-            getWidget: function () { return widget; },
-            setWidget: function (p) { widget = p; callback(widget); },
-          };
-        }
-
-        window.lastwidget = Create(function (widget) {
-          console.log(widget)
-        });
         
-        window.lastwidget.setWidget("");
-        ///////////////////////////////////////////////////////////////////////////////////////////////
-        this.inherited(arguments);
-
-        this._config = lang.clone(this.config.editor);
         var that = this;
+        this._config = lang.clone(this.config.editor);
+        //Load all data
+        var PMS = [], IDTA = [], subtenants = [], tenancy = [],TanglinBuildings=[];
 
-        var SnapshotDate = this.SnapshotDate
-        if (!this.SnapshotDate) {
-          console.log("no SnapshotDate")
-          SnapshotDate = new Date("2018-10-01");
-          this.SnapshotDate = SnapshotDate;
-        }
-
+        var pmsQueryTask = new QueryTask({ url: this._config.layerInfos[0].featureLayer.url });
+        var tenancyQueryTask = new QueryTask({ url: this._config.layerInfos[3].featureLayer.url });
+        var idtaQueryTask = new QueryTask({ url: this._config.layerInfos[1].featureLayer.url });
+        var subtenantsQueryTask = new QueryTask({ url: this._config.layerInfos[2].featureLayer.url });
         var TanglinBuildings_queryTask = new QueryTask({
-          url: this._config.layerInfos[0].featureLayer.url //"https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings_Tanglin/FeatureServer/0"
+          url: this._config.layerInfos[4].featureLayer.url //"https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings_Tanglin/FeatureServer/0"
         });
-        var TanglinBuildings = [], Cluster = [], Property = [], Building = [], Floor = [];
 
         var query = new Query();
         query.returnGeometry = false;
-        // query.where = "SnapshotDate = '" + this.SnapshotDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + "'";
-        query.where = "";
+        query.where = "1=1"
         query.outFields = ["*"];
 
-        TanglinBuildings_queryTask.execute(query).then(function (Results) {
-          console.log("TanglinBuildings_queryTask_Results")
-          var resultset = Results.features;
+        pmsQueryTask.execute(query).then(function (pmsResults) {
+          var resultset = pmsResults.features;
+          console.log("PMS");
+          for (var i = 0; i < resultset.length; i++) {
+            PMS.push(resultset[i].attributes);
+          }
+          window.PMS = PMS
+        }).then(function () {
+          return tenancyQueryTask.execute(query);
+        }).then(function (tenancyResults) {
+          var resultset = tenancyResults.features;
+          console.log("tenancy");
+          for (var i = 0; i < resultset.length; i++) {
+            tenancy.push(resultset[i].attributes);
+          }
+          window.tenancy = tenancy
+        }).then(function () {
+          return idtaQueryTask.execute(query);
+        }).then(function (idtaResults) {
+          var resultset = idtaResults.features;
+          console.log("IDTA");
+          for (var i = 0; i < resultset.length; i++) {
+            IDTA.push(resultset[i].attributes);
+          }
+          window.IDTA = IDTA
+        }).then(function () {
+          return subtenantsQueryTask.execute(query);
+        }).then(function (subtenantsResults) {
+          var resultset = subtenantsResults.features;
+          console.log("subtenants");
+          for (var i = 0; i < resultset.length; i++) {
+            subtenants.push(resultset[i].attributes);
+          }
+          window.subtenants = subtenants
+          return
+        }).then(function () {
+          return TanglinBuildings_queryTask.execute(query);
+        }).then(function (tanglinBuildingsResults) {
+          var resultset = tanglinBuildingsResults.features;
+          console.log("tanglinBuildings");
           for (var i = 0; i < resultset.length; i++) {
             TanglinBuildings.push(resultset[i].attributes);
+          }
+          window.TanglinBuildings = TanglinBuildings
+          return
+        }).then(function () {
+          // Actual work after loading all data
+          //Global Variable Listener (on Window.lastwidget)
+          function Create(callback) {
+            var widget = null;
+            return {
+              getWidget: function () { return widget; },
+              setWidget: function (p) { widget = p; callback(widget); },
+            };
+          }
 
-            if (resultset[i].attributes.subtenancy_info_Classification_ !== null && Cluster.indexOf(resultset[i].attributes.subtenancy_info_Classification_) == -1)
-              Cluster.push(resultset[i].attributes.subtenancy_info_Classification_)
-            if (resultset[i].attributes.subtenancy_info_Property_Unit_L !== null && Property.indexOf(resultset[i].attributes.subtenancy_info_Property_Unit_L) == -1)
-              Property.push(resultset[i].attributes.subtenancy_info_Property_Unit_L)
-            if (resultset[i].attributes.subtenancy_info_Block_No !== null && Building.indexOf(resultset[i].attributes.subtenancy_info_Block_No) == -1)
-              Building.push(resultset[i].attributes.subtenancy_info_Block_No)
-            if (resultset[i].attributes.Tanglin_Village_Storey !== null && Floor.indexOf(resultset[i].attributes.Tanglin_Village_Storey) == -1)
-              Floor.push(resultset[i].attributes.Tanglin_Village_Storey)
+          // window.lastwidget = Create(that._startup0(widget));
+          window.lastwidget = Create(function(widget){
+            that._startup0(widget)
+          });
+
+          window.lastwidget.setWidget("");
+        });
+      },
+
+      _startup0: function (widget) {
+        console.log("Filter0 _startup0")
+        this._ChangeView(widget)
+
+        this.inherited(arguments);
+
+        var Cluster = [], Property = [], Building = [], Floor = [];
+
+          for (var i = 0; i < TanglinBuildings.length; i++) {
+            if (TanglinBuildings[i].subtenancy_info_Classification_ !== null && Cluster.indexOf(TanglinBuildings[i].subtenancy_info_Classification_) == -1)
+              Cluster.push(TanglinBuildings[i].subtenancy_info_Classification_)
+            if (TanglinBuildings[i].subtenancy_info_Property_Unit_L !== null && Property.indexOf(TanglinBuildings[i].subtenancy_info_Property_Unit_L) == -1)
+              Property.push(TanglinBuildings[i].subtenancy_info_Property_Unit_L)
+            if (TanglinBuildings[i].subtenancy_info_Block_No !== null && Building.indexOf(TanglinBuildings[i].subtenancy_info_Block_No) == -1)
+              Building.push(TanglinBuildings[i].subtenancy_info_Block_No)
+            if (TanglinBuildings[i].Tanglin_Village_Storey !== null && Floor.indexOf(TanglinBuildings[i].Tanglin_Village_Storey) == -1)
+              Floor.push(TanglinBuildings[i].Tanglin_Village_Storey)
 
           }
-          window.TanglinBuildings = TanglinBuildings;
           window.Cluster = Cluster;
           window.Property = Property;
           window.Building = Building;
           window.Floor = Floor;
 
-          that.populateFilterVal();
-          console.log(TanglinBuildings)
-        }, function (err) {
-          // Do something when the process errors out
-          console.log(err)
-        })
+          this._populateFilterVal();
 
       },
 
-      // onReceiveData: function(name, widgetId, data) {
-      //   console.log("Filter0 onReceiveData")
-      //   if (name === 'framework' && widgetId === 'framework' && data && data.searchString) {
-      //     this.searchDijit.viewModel.set('value', data.searchString);
-      //     this.searchDijit.viewModel.search();
-      //   }
-      // },
+
+      _ChangeView: function (widget) {
+        
+        if(widget=="Overview"||widget=="Leasing"){
+        this.sceneView.map.layers.forEach(function (layer) {
+          // Turn on building layer
+            if (layer.title == "SLA Buildings") {
+              layer.visible = true;
+              layer.opacity = 1;
+            }
+          // Turn off unit layer
+            if (layer.title == "Buildings Tanglin") {
+              layer.visible = false;
+            }
+          });
+        }else if(widget=="Subtenant") {
+          this.sceneView.map.layers.forEach(function (layer) {
+            // Turn on building layer
+              if (layer.title == "SLA Buildings") {
+                layer.visible = true;
+                layer.opacity = 0.3;
+              }
+            // Turn off unit layer
+              if (layer.title == "Buildings Tanglin") {
+                layer.visible = true;
+                layer.opacity = 0.7;
+              }
+            });
+        }
+      },
 
       setPosition: function () {
         console.log("Filter0 setPosition")
@@ -168,7 +227,7 @@ define([
         this.inherited(arguments);
       },
       //filter
-      populateFilterVal: function () {
+      _populateFilterVal: function () {
         this.PropertyFilter.innerHTML = "<option></option>"
         for (var i = 0; i < window.Property.length; i++) {
           this.PropertyFilter.innerHTML += "<option value='" + window.Property[i] + "'>" + window.Property[i] + "</option>"
@@ -228,7 +287,7 @@ define([
           if (layer.title == "Buildings Tanglin") {
             layer.definitionExpression = queryDef;
             layer.renderer = renderer
-            layer.opacity = 0.5;
+            // layer.opacity = 0.5;
           }
         });
 

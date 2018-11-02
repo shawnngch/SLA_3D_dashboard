@@ -62,7 +62,7 @@ define([
             url: this._config.layerInfos[1].featureLayer.url
           });
           var subtenantsQueryTask = new QueryTask({
-            url: this._config.layerInfos[1].featureLayer.url
+            url: this._config.layerInfos[2].featureLayer.url
           });
 
           var query = new Query();
@@ -108,10 +108,11 @@ define([
             return
           }).then(function () {
             // Actual work after loading all data
-            that._ChangeView();
+            // that._ChangeView();
             that._loadSlider();
           });
         } else {
+          // this._ChangeView();
           this._loadSlider();
         }
 
