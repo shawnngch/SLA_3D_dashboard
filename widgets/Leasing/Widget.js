@@ -42,9 +42,6 @@ define([
     TADT: null,
     DataTableLoaded: false,
 
-    //lighting._lastTimezone:The time zone which map shows
-    //lighting.date: The date map uses
-
     postCreate: function () {
       this.inherited(arguments);
 
@@ -173,24 +170,24 @@ define([
           if (yearIndex == -1) {
             if (objArr.year.length == 0) {
               objArr.year.push(endYear)
-              objArr.NLA.push(PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
+              objArr.NLA.push(PMS[i].TOTAL_PROP_BLDG_GFA_SQM/1000)
               continue
             }
 
             for (var j = 0; j < objArr.year.length; j++) {
               if (endYear < objArr.year[j]) {
                 objArr.year.splice(j, 0, endYear)
-                objArr.NLA.splice(j, 0, PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
+                objArr.NLA.splice(j, 0, PMS[i].TOTAL_PROP_BLDG_GFA_SQM/1000)
                 break
               }
               if (j == objArr.year.length - 1) {
                 objArr.year.push(endYear)
-                objArr.NLA.push(PMS[i].TOTAL_PROP_BLDG_GFA_SQM)
+                objArr.NLA.push(PMS[i].TOTAL_PROP_BLDG_GFA_SQM/1000)
                 break
               }
             }
           } else {
-            objArr.NLA[yearIndex] += PMS[i].TOTAL_PROP_BLDG_GFA_SQM
+            objArr.NLA[yearIndex] += (PMS[i].TOTAL_PROP_BLDG_GFA_SQM/1000)
           }
 
         }
@@ -222,6 +219,9 @@ define([
           }]
         },
         options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          // aspectRatio:3,
           scales: {
             xAxes: [{
               stacked: true,
@@ -242,12 +242,12 @@ define([
               position: 'right',
               scaleLabel: {
                 display: true,
-                labelString: 'NLA'
+                labelString: 'NLA (1000)'
               }
             }]
           },
           legend: {
-            display: true
+            display: false
           }
         }
       });
@@ -288,41 +288,48 @@ define([
         colNames.push({ title: tenancyAttributes[i] })
       }
 
+
+      console.log("DataTableLoaded = " + this.DataTableLoaded)
       if (this.DataTableLoaded == false) {
-        this.TADT = $('#TATable').DataTable({
-          data: TATableData,
-          columns: colNames,
-          columnDefs: [
-            {
-              targets: [0],
-              visible: false
-            },
-            {
-              targets: [1],
-              visible: false
-            },
-            {
-              targets: [2],
-              visible: false
-            },
-            {
-              targets: [3],
-              visible: false
-            },
-            {
-              targets: [12],
-              visible: false
-            }
-          ],
-          scrollY: '250',
-          scrollX: true,
-          paging: false,
-          dom: 't'
-        });
+        try {
+          this.TADT = $('#TATable').DataTable({
+            data: TATableData,
+            columns: colNames,
+            columnDefs: [
+              {
+                targets: [0],
+                visible: false
+              },
+              {
+                targets: [1],
+                visible: false
+              },
+              {
+                targets: [2],
+                visible: false
+              },
+              {
+                targets: [3],
+                visible: false
+              },
+              {
+                targets: [12],
+                visible: false
+              }
+            ],
+            scrollY: '250',
+            scrollX: true,
+            paging: false,
+            dom: 't'
+          });
+          
+        } catch (error) {
+          console.log(error.message)
+        }
         this.DataTableLoaded = true
-        console.log("DataTableLoaded = " + this.DataTableLoaded)
-        console.log(TATableData)
-        console.log(colNames)
+        // console.log("DataTableLoaded = " + this.DataTableLoaded)
+        // console.log(TATableData)
+        // console.log(colNames)
       } else {
         this.TADT.column(2).search(this.TenantFilter.value).draw();
       }

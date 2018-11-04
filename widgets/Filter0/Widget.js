@@ -52,6 +52,7 @@ define([
       baseClass: 'jimu-widget-filter0',
       searchDijit: null,
       _config: null,
+      lastwidget0: null,
 
       postCreate: function () {
         console.log("Filter0 postCreate")
@@ -59,11 +60,11 @@ define([
         this.listenWidgetIds.push('framework');
       },
       startup: function () {
-        
+
         var that = this;
         this._config = lang.clone(this.config.editor);
         //Load all data
-        var PMS = [], IDTA = [], subtenants = [], tenancy = [],TanglinBuildings=[];
+        var PMS = [], IDTA = [], subtenants = [], tenancy = [], TanglinBuildings = [];
 
         var pmsQueryTask = new QueryTask({ url: this._config.layerInfos[0].featureLayer.url });
         var tenancyQueryTask = new QueryTask({ url: this._config.layerInfos[3].featureLayer.url });
@@ -135,70 +136,73 @@ define([
           }
 
           // window.lastwidget = Create(that._startup0(widget));
-          window.lastwidget = Create(function(widget){
-            that._startup0(widget)
+          window.lastwidget = Create(function (widget) {
+            that.lastwidget0 = widget
+            that._startup0()
           });
 
           window.lastwidget.setWidget("");
         });
       },
 
-      _startup0: function (widget) {
+      _startup0: function () {
         console.log("Filter0 _startup0")
-        this._ChangeView(widget)
+        this._ChangeView()
 
         this.inherited(arguments);
 
+        //get filter values
         var Cluster = [], Property = [], Building = [], Floor = [];
 
-          for (var i = 0; i < TanglinBuildings.length; i++) {
-            if (TanglinBuildings[i].subtenancy_info_Classification_ !== null && Cluster.indexOf(TanglinBuildings[i].subtenancy_info_Classification_) == -1)
-              Cluster.push(TanglinBuildings[i].subtenancy_info_Classification_)
-            if (TanglinBuildings[i].subtenancy_info_Property_Unit_L !== null && Property.indexOf(TanglinBuildings[i].subtenancy_info_Property_Unit_L) == -1)
-              Property.push(TanglinBuildings[i].subtenancy_info_Property_Unit_L)
-            if (TanglinBuildings[i].subtenancy_info_Block_No !== null && Building.indexOf(TanglinBuildings[i].subtenancy_info_Block_No) == -1)
-              Building.push(TanglinBuildings[i].subtenancy_info_Block_No)
-            if (TanglinBuildings[i].Tanglin_Village_Storey !== null && Floor.indexOf(TanglinBuildings[i].Tanglin_Village_Storey) == -1)
-              Floor.push(TanglinBuildings[i].Tanglin_Village_Storey)
+        for (var i = 0; i < TanglinBuildings.length; i++) {
+          if (TanglinBuildings[i].subtenancy_info_Classification_ !== null && Cluster.indexOf(TanglinBuildings[i].subtenancy_info_Classification_) == -1)
+            Cluster.push(TanglinBuildings[i].subtenancy_info_Classification_)
+          if (TanglinBuildings[i].subtenancy_info_Property_Unit_L !== null && Property.indexOf(TanglinBuildings[i].subtenancy_info_Property_Unit_L) == -1)
+            Property.push(TanglinBuildings[i].subtenancy_info_Property_Unit_L)
+          if (TanglinBuildings[i].subtenancy_info_Block_No !== null && Building.indexOf(TanglinBuildings[i].subtenancy_info_Block_No) == -1)
+            Building.push(TanglinBuildings[i].subtenancy_info_Block_No)
+          if (TanglinBuildings[i].Tanglin_Village_Storey !== null && Floor.indexOf(TanglinBuildings[i].Tanglin_Village_Storey) == -1)
+            Floor.push(TanglinBuildings[i].Tanglin_Village_Storey)
 
-          }
-          window.Cluster = Cluster;
-          window.Property = Property;
-          window.Building = Building;
-          window.Floor = Floor;
+        }
+        window.Cluster = Cluster;
+        window.Property = Property;
+        window.Building = Building;
+        window.Floor = Floor;
 
-          this._populateFilterVal();
+        this._populateFilterVal();
 
       },
 
 
-      _ChangeView: function (widget) {
-        
-        if(widget=="Overview"||widget=="Leasing"){
-        this.sceneView.map.layers.forEach(function (layer) {
-          // Turn on building layer
+      _ChangeView: function () {
+
+        if (this.lastwidget0 == "Overview" || this.lastwidget0 == "Leasing") {
+          this.sceneView.map.layers.forEach(function (layer) {
+            // Turn on building layer
             if (layer.title == "SLA Buildings") {
               layer.visible = true;
               layer.opacity = 1;
             }
-          // Turn off unit layer
+            // Turn off unit layer
             if (layer.title == "Buildings Tanglin") {
               layer.visible = false;
             }
           });
-        }else if(widget=="Subtenant") {
+        } else if (this.lastwidget0 == "Subtenant") {
           this.sceneView.map.layers.forEach(function (layer) {
-            // Turn on building layer
-              if (layer.title == "SLA Buildings") {
-                layer.visible = true;
-                layer.opacity = 0.3;
-              }
+            // building layer
+            if (layer.title == "SLA Buildings") {
+              layer.visible = false;
+              layer.opacity = 0.2;
+
+            }
             // Turn off unit layer
-              if (layer.title == "Buildings Tanglin") {
-                layer.visible = true;
-                layer.opacity = 0.7;
-              }
-            });
+            if (layer.title == "Buildings Tanglin") {
+              layer.visible = true;
+              layer.opacity = 0.8;
+            }
+          });
         }
       },
 
@@ -244,14 +248,30 @@ define([
         for (var i = 0; i < window.Floor.length; i++) {
           this.FloorFilter.innerHTML += "<option value='" + window.Floor[i] + "'>" + window.Floor[i] + "</option>"
         }
+        this.ViewFilter.innerHTML = ""
         for (var i = 0; i < this._config.ViewBy.length; i++) {
           this.ViewFilter.innerHTML += "<option value='" + this._config.ViewBy[i].Value + "'>" + this._config.ViewBy[i].Display + "</option>"
         }
+
+        //hide floor and building filter
+        if (this.lastwidget0 == "" || this.lastwidget0 == "Overview" || this.lastwidget0 == "Leasing") {
+          this.BuildingFilterContainer.hidden = true
+          this.FloorFilterContainer.hidden = true
+        }else{
+          this.BuildingFilterContainer.hidden = false
+          this.FloorFilterContainer.hidden = false
+        }
+
         this.own(on(this.PropertyFilter, 'change', lang.hitch(this, this._onFilterChanged)));
         this.own(on(this.ClusterFilter, 'change', lang.hitch(this, this._onFilterChanged)));
         this.own(on(this.BuildingFilter, 'change', lang.hitch(this, this._onFilterChanged)));
         this.own(on(this.FloorFilter, 'change', lang.hitch(this, this._onFilterChanged)));
         this.own(on(this.ViewFilter, 'change', lang.hitch(this, this._onFilterChanged)));
+        //set View when widget opened
+        if (this.lastwidget0 == "Overview") {
+          this.ViewFilter.value = "Occupancy"
+          this._onFilterChanged()
+        }
       },
 
       _onFilterChanged: function () {
@@ -264,11 +284,6 @@ define([
         //   return layer.title === "Buildings Tanglin";
         // });
 
-        var ClusterQuery = ClusterVal ? "subtenancy_info_Classification_ = '" + ClusterVal + "'" : ""
-        var PropQuery = PropVal ? "subtenancy_info_Property_Unit_L= '" + PropVal + "'" : ""
-        var BldgQuery = BuildingVal ? "subtenancy_info_Block_No= '" + BuildingVal + "'" : ""
-        var floorQuery = FloorVal ? "Tanglin_Village_Storey= " + FloorVal : ""
-
         function findWithAttr(array, attr, value) {
           for (var i = 0; i < array.length; i += 1) {
             if (array[i][attr] === value) {
@@ -277,17 +292,33 @@ define([
           }
           return -1;
         }
+
+        // if(this.lastwidget0==""||this.lastwidget0=="Overview"||this.lastwidget0=="Leasing"){
+
+        // }else if(this.lastwidget0=="Subtenant"){
+        var ClusterQuery = ClusterVal ? "subtenancy_info_Classification_ = '" + ClusterVal + "'" : ""
+        var PropQuery = PropVal ? "subtenancy_info_Property_Unit_L= '" + PropVal + "'" : ""
+        var BldgQuery = BuildingVal ? "subtenancy_info_Block_No= '" + BuildingVal + "'" : ""
+        var floorQuery = FloorVal ? "Tanglin_Village_Storey= " + FloorVal : ""
+        // }
+
         var viewIndex = findWithAttr(this._config.ViewBy, "Value", ViewVal)
         var renderer = this._config.ViewBy[viewIndex].Renderer
 
-        var queryDef = [ClusterQuery, PropQuery, BldgQuery, floorQuery].filter(Boolean).join("AND ");
+        var queryDef
+        //hide floor and building filter
+        if (this.lastwidget0 == "Subtenant") {
+          queryDef = [ClusterQuery, PropQuery, BldgQuery, floorQuery].filter(Boolean).join("AND ");
+        } else {
+          queryDef = [ClusterQuery, PropQuery].filter(Boolean).join("AND ");
+        }
 
         // update the definition expression of Buildings Tanglin layer
         this.sceneView.map.layers.forEach(function (layer) {
-          if (layer.title == "Buildings Tanglin") {
+          if (layer.title == "Buildings Tanglin" || layer.title == "SLA Buildings") {
             layer.definitionExpression = queryDef;
             layer.renderer = renderer
-            // layer.opacity = 0.5;
+            layer.opacity = 0.7;
           }
         });
 

@@ -118,22 +118,22 @@ define([
 
         this.inherited(arguments);
       },
-      onOpen:function(){
+      onOpen: function () {
         window.lastwidget.setWidget("Overview");
       },
-  
-      
+
+
       _ChangeView: function () {
         this.sceneView.map.layers.forEach(function (layer) {
           // Turn on building layer
-            if (layer.title == "SLA Buildings") {
-              layer.visible = true;
-            }
+          if (layer.title == "SLA Buildings") {
+            layer.visible = true;
+          }
           // Turn off unit layer
-            if (layer.title == "Buildings Tanglin") {
-              layer.visible = false;
-            }
-          });
+          if (layer.title == "Buildings Tanglin") {
+            layer.visible = false;
+          }
+        });
       },
 
       _loadSlider: function () {
@@ -224,8 +224,8 @@ define([
         this.propUnmarketable.textContent = unmarketable;
 
         //tenancy-------------------------------------------------------------------------------------------------------------------
-        
-        var refDate = (SliderVal == Math.max.apply(null, this.timelineDates))?new Date():SliderVal;
+
+        var refDate = (SliderVal == Math.max.apply(null, this.timelineDates)) ? new Date() : SliderVal;
         var grossMonthlyRentalRevenue = 0, noOfLeases = 0;
         var expiryPortfolio = { year: [], count: [], sortedYear: [], sortedCount: [] }
         var tenancyMix = { type: [], count: [] }
@@ -301,6 +301,8 @@ define([
             }]
           },
           options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
               yAxes: [{
                 ticks: {
@@ -341,6 +343,8 @@ define([
             }]
           },
           options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
               yAxes: [{
                 ticks: {
@@ -373,14 +377,18 @@ define([
                 'rgba(54, 162, 235, 1)',
               ],
             }],
-
             // These labels appear in the legend and in the tooltips when hovering different arcs
             labels: [
               'Renewals',
               'New leases'
             ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
           }
         });
+
       },
 
     });

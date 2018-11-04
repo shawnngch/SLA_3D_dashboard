@@ -222,18 +222,22 @@ define([
             }
           }
             // Shawn - Add Building Scene
+            //subtenant
             var TanglinBuildings = new SceneLayer({
               url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Buildings_Tanglin/SceneServer",
-              popupEnabled: true,
-              outFields: ["*"],
-              visible: true
-              // definitionExpression: definitionExpression
-            })
-            var SLA_Buildings = new SceneLayer({
-              url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings/SceneServer/layers/0",
+              //https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings_Tanglin/FeatureServer/0
               popupEnabled: true,
               outFields: ["*"],
               visible: false
+              // definitionExpression: definitionExpression
+            })
+            //property
+            var SLA_Buildings = new SceneLayer({
+              url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings/SceneServer/layers/0",
+              //https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings/FeatureServer/0
+              popupEnabled: true,
+              outFields: ["*"],
+              visible: true
             })
             this.sceneView.map.addMany([TanglinBuildings,SLA_Buildings])
           }), lang.hitch(this, function () {

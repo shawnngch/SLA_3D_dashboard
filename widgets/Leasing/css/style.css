@@ -21,6 +21,11 @@ section{
   /* border: 1px solid gray; */
   text-align: center; 
 }
+.chart-container, .content-container{
+  position: relative;
+  height:100%;
+  padding: 5px;
+}
 .container{
   width: 100%;
   height: 100%;
@@ -46,7 +51,7 @@ section{
   text-align: center;
   width: 100%;
 }
-.jimu-widget-overview .card span{
+.jimu-widget-overview .card .card-content{
   font-size: 1.5em;
 
   margin: 0;
