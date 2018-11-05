@@ -27,13 +27,18 @@ define([
   "esri/layers/FeatureLayer",
   "esri/tasks/QueryTask",
   "esri/tasks/support/Query",
-  'node_modules/chart.js/dist/Chart.js',
+  // 'node_modules/chart.js/dist/Chart.js',
   'dijit/form/HorizontalSlider',
+  // 'node_modules/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.js',
   'dijit/form/Select',
   'jimu/dijit/CheckBox'
 
 ], function (declare, BaseWidget, _WidgetsInTemplateMixin, on, lang, html, djConfig, jimuUtils, watchUtils,
-  FeatureLayer, QueryTask, Query, Chart, HorizontalSlider) {
+  FeatureLayer, QueryTask, Query,
+  // Chart, 
+  HorizontalSlider,
+    // chartjsdatalabels,
+  ) {
 
     var clazz = declare([BaseWidget, _WidgetsInTemplateMixin], {
 
@@ -48,73 +53,73 @@ define([
         var that = this;
 
         //Load all data if not already loaded
-        if (window.PMS == null || window.IDTA == null || window.tenancy == null || window.subtenants == null) {
-          //Load all data
-          var PMS = [], IDTA = [], subtenants = [], tenancy = [];
+        // if (window.PMS == null || window.IDTA == null || window.tenancy == null || window.subtenants == null) {
+        //   //Load all data
+        //   var PMS = [], IDTA = [], subtenants = [], tenancy = [];
 
-          var pmsQueryTask = new QueryTask({
-            url: this._config.layerInfos[0].featureLayer.url
-          });
-          var tenancyQueryTask = new QueryTask({
-            url: this._config.layerInfos[3].featureLayer.url
-          });
-          var idtaQueryTask = new QueryTask({
-            url: this._config.layerInfos[1].featureLayer.url
-          });
-          var subtenantsQueryTask = new QueryTask({
-            url: this._config.layerInfos[2].featureLayer.url
-          });
+        //   var pmsQueryTask = new QueryTask({
+        //     url: this._config.layerInfos[0].featureLayer.url
+        //   });
+        //   var tenancyQueryTask = new QueryTask({
+        //     url: this._config.layerInfos[3].featureLayer.url
+        //   });
+        //   var idtaQueryTask = new QueryTask({
+        //     url: this._config.layerInfos[1].featureLayer.url
+        //   });
+        //   var subtenantsQueryTask = new QueryTask({
+        //     url: this._config.layerInfos[2].featureLayer.url
+        //   });
 
-          var query = new Query();
-          query.returnGeometry = false;
-          // query.where = "timeline = '" + new Date(this.slider.get("value")).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + "'";
-          query.where = "1=1"
-          query.outFields = ["*"];
+        //   var query = new Query();
+        //   query.returnGeometry = false;
+        //   // query.where = "timeline = '" + new Date(this.slider.get("value")).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + "'";
+        //   query.where = "1=1"
+        //   query.outFields = ["*"];
 
-          pmsQueryTask.execute(query).then(function (pmsResults) {
-            var resultset = pmsResults.features;
-            console.log("PMS");
-            for (var i = 0; i < resultset.length; i++) {
-              PMS.push(resultset[i].attributes);
-            }
-            window.PMS = PMS
-          }).then(function () {
-            return tenancyQueryTask.execute(query);
-          }).then(function (tenancyResults) {
-            var resultset = tenancyResults.features;
-            console.log("tenancy");
-            for (var i = 0; i < resultset.length; i++) {
-              tenancy.push(resultset[i].attributes);
-            }
-            window.tenancy = tenancy
-          }).then(function () {
-            return idtaQueryTask.execute(query);
-          }).then(function (idtaResults) {
-            var resultset = idtaResults.features;
-            console.log("IDTA");
-            for (var i = 0; i < resultset.length; i++) {
-              IDTA.push(resultset[i].attributes);
-            }
-            window.IDTA = IDTA
-          }).then(function () {
-            return subtenantsQueryTask.execute(query);
-          }).then(function (subtenantsResults) {
-            var resultset = subtenantsResults.features;
-            console.log("subtenants");
-            for (var i = 0; i < resultset.length; i++) {
-              subtenants.push(resultset[i].attributes);
-            }
-            window.subtenants = subtenants
-            return
-          }).then(function () {
-            // Actual work after loading all data
-            // that._ChangeView();
-            that._loadSlider();
-          });
-        } else {
+        //   pmsQueryTask.execute(query).then(function (pmsResults) {
+        //     var resultset = pmsResults.features;
+        //     console.log("PMS");
+        //     for (var i = 0; i < resultset.length; i++) {
+        //       PMS.push(resultset[i].attributes);
+        //     }
+        //     window.PMS = PMS
+        //   }).then(function () {
+        //     return tenancyQueryTask.execute(query);
+        //   }).then(function (tenancyResults) {
+        //     var resultset = tenancyResults.features;
+        //     console.log("tenancy");
+        //     for (var i = 0; i < resultset.length; i++) {
+        //       tenancy.push(resultset[i].attributes);
+        //     }
+        //     window.tenancy = tenancy
+        //   }).then(function () {
+        //     return idtaQueryTask.execute(query);
+        //   }).then(function (idtaResults) {
+        //     var resultset = idtaResults.features;
+        //     console.log("IDTA");
+        //     for (var i = 0; i < resultset.length; i++) {
+        //       IDTA.push(resultset[i].attributes);
+        //     }
+        //     window.IDTA = IDTA
+        //   }).then(function () {
+        //     return subtenantsQueryTask.execute(query);
+        //   }).then(function (subtenantsResults) {
+        //     var resultset = subtenantsResults.features;
+        //     console.log("subtenants");
+        //     for (var i = 0; i < resultset.length; i++) {
+        //       subtenants.push(resultset[i].attributes);
+        //     }
+        //     window.subtenants = subtenants
+        //     return
+        //   }).then(function () {
+        //     // Actual work after loading all data
+        //     // that._ChangeView();
+        //     that._loadSlider();
+        //   });
+        // } else {
           // this._ChangeView();
           this._loadSlider();
-        }
+        // }
 
         this.inherited(arguments);
       },
@@ -297,10 +302,27 @@ define([
                 'rgba(153, 102, 255, 1)',
                 'rgba(255, 159, 64, 1)'
               ],
-              borderWidth: 1
+              borderWidth: 1,
+              datalabels: {
+                anchor: 'end',
+                align: 'start'
+              }
             }]
           },
           options: {
+            plugins: {
+              datalabels: {
+                color: 'grey',
+                display: function (context) {
+                  return context.dataset.data[context.dataIndex];
+                },
+                font: {
+                  weight: 'bold'
+                },
+                formatter: Math.round
+              }
+            },
+            //Chart Size
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -339,10 +361,26 @@ define([
                 'rgba(153, 102, 255, 1)',
                 'rgba(255, 159, 64, 1)'
               ],
-              borderWidth: 1
+              borderWidth: 1,
+              datalabels: {
+                anchor: 'end',
+                align: 'start'
+              }
             }]
           },
           options: {
+            plugins: {
+              datalabels: {
+                color: 'grey',
+                display: function (context) {
+                  return context.dataset.data[context.dataIndex];
+                },
+                font: {
+                  weight: 'bold'
+                },
+                formatter: Math.round
+              }
+            },
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -354,12 +392,6 @@ define([
             },
             legend: {
               display: false
-            },
-            plugins: {
-              datalabels: {
-                // hide datalabels for all datasets
-                display: true
-              }
             }
           }
         });
@@ -376,6 +408,10 @@ define([
                 'rgba(255,99,132,1)',
                 'rgba(54, 162, 235, 1)',
               ],
+              datalabels: {
+                anchor: 'end',
+                align: 'start'
+              }
             }],
             // These labels appear in the legend and in the tooltips when hovering different arcs
             labels: [
@@ -384,6 +420,18 @@ define([
             ]
           },
           options: {
+            plugins: {
+              datalabels: {
+                color: 'grey',
+                display: function (context) {
+                  return context.dataset.data[context.dataIndex];
+                },
+                font: {
+                  weight: 'bold'
+                },
+                formatter: Math.round
+              }
+            },
             responsive: true,
             maintainAspectRatio: false
           }

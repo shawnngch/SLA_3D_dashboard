@@ -2,7 +2,8 @@
 	<div class="filter-container">
 		Filter by Tenant:
 		<br />
-		<select class="filter" data-dojo-attach-point="TenantFilter">
+		<!-- <select class="filter" data-dojo-attach-point="TenantFilter"> -->
+			<select class="filter" data-dojo-attach-point="TenantFilter" multiple="" class="ui fluid dropdown">
 		</select>
 	</div>
 	<section class="inner-wrapper-3" id="col-container">
@@ -27,6 +28,7 @@
 			<section class="card col-1-1">
 				<h3>Account Information</h3>
 				<table id="TATable" class="table table-striped table-bordered table-hover table-sm"></table>
+				<div data-dojo-attach-point="test"></div>
 			</section>
 		</section>
 	</section>
