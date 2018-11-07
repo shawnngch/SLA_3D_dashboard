@@ -3,10 +3,10 @@
 		Filter by Tenant:
 		<br />
 		<!-- <select class="filter" data-dojo-attach-point="TenantFilter"> -->
-		<select class="ui search selection dropdown" multiple="" id="multi-select"data-dojo-attach-point="TenantFilter">
+		<select class="ui search selection dropdown" multiple="" id="multi-select" data-dojo-attach-point="TenantFilter">
 		</select>
 	</div>
-	<section class="inner-wrapper-3" id="col-container">
+	<div class="inner-wrapper-3" id="col-container">
 		<section class="jimu-r-row row-2-5">
 			<section class="card col-2-3" id="Revenue">
 				<h3>Portfolio Lease Expiry Profile</h3>
@@ -17,9 +17,11 @@
 			<section class="card col-1-3" id="LeaseDue">
 				<h3>Leases due for expiry in 6 months</h3>
 				<div class="content-container">
-					<table>
-						<tbody data-dojo-attach-point="expiringTable"></tbody>
-					</table>
+					<div class="card-content">
+						<table>
+							<tbody data-dojo-attach-point="expiringTable"></tbody>
+						</table>
+					</div>
 				</div>
 
 			</section>
@@ -27,11 +29,14 @@
 		<section class="jimu-r-row row-3-5">
 			<section class="card col-1-1">
 				<h3>Account Information</h3>
-				<table id="TATable" class="table table-striped table-bordered table-hover table-sm"></table>
-				<div data-dojo-attach-point="test"></div>
+				<div class="content-container">
+					<!-- <table id="TATable" class="table table-striped table-bordered table-hover table-sm"></table> -->
+					<table id="TATable" class="table grey ui compact table-hover small table-striped table-bordered"></table>
+					<!-- <div data-dojo-attach-point="test"></div> -->
+				</div>
 			</section>
 		</section>
-	</section>
+	</div>
 
 
 

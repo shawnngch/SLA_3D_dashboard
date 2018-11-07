@@ -37,7 +37,7 @@ define([
 
     var clazz = declare([BaseWidget, _WidgetsInTemplateMixin], {
 
-      baseClass: 'jimu-widget-overview',
+      baseClass: 'jimu-widget-leasing',
       _config: null,
       SnapshotDate: window.SnapshotDate,
       tenancyList: [],
@@ -47,7 +47,7 @@ define([
       postCreate: function () {
         this.inherited(arguments);
 
-        this._config = lang.clone(this.config.editor);
+        // this._config = lang.clone(this.config.editor);
 
         var SnapshotDate = this.SnapshotDate
         if (!this.SnapshotDate) {
@@ -228,7 +228,8 @@ define([
                 align: 'end'
               }
             },
-          }
+          },
+          scrollY: '100%',
         });
 
         //Get data for expiryTable
@@ -300,7 +301,8 @@ define([
               scrollY: '250',
               scrollX: true,
               paging: false,
-              dom: 't'
+              dom: 't',
+              pageResize: true
             });
 
           } catch (error) {
@@ -314,19 +316,20 @@ define([
           var searchstr = tenantvalues.join("|");
 
           this.TADT.column(3).search(searchstr, true, false).draw();
-          // this.TADT.column(3).search(searchstr, true, false).draw();
-          // this.TADT.column(3).search(this.TenantFilter.value).draw();
         }
 
-        // $('#TATable tbody').on('click', 'tr', function () {
-        //   if ($(this).hasClass('selected')) {
-        //     $(this).removeClass('selected');
-        //   }
-        //   else {
-        //     $('#TATable').DataTable().$('tr.selected').removeClass('selected');
-        //     $(this).addClass('selected');
-        //   }
-        // });
+        $('#TATable tbody').on('click', 'tr', function () {
+          if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+            $(this).removeClass('active');
+          }
+          else {
+            $('#TATable').DataTable().$('tr.selected').removeClass('selected');
+            $('#TATable').DataTable().$('tr.active').removeClass('active');
+            $(this).addClass('selected');
+            $(this).addClass('active');
+          }
+        });
       },
 
       _AfterLoad: function () {

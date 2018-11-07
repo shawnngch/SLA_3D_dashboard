@@ -27,18 +27,12 @@ define([
   "esri/layers/FeatureLayer",
   "esri/tasks/QueryTask",
   "esri/tasks/support/Query",
-  // 'node_modules/chart.js/dist/Chart.js',
   'dijit/form/HorizontalSlider',
-  // 'node_modules/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.js',
   'dijit/form/Select',
   'jimu/dijit/CheckBox'
 
 ], function (declare, BaseWidget, _WidgetsInTemplateMixin, on, lang, html, djConfig, jimuUtils, watchUtils,
-  FeatureLayer, QueryTask, Query,
-  // Chart, 
-  HorizontalSlider,
-    // chartjsdatalabels,
-  ) {
+  FeatureLayer, QueryTask, Query, HorizontalSlider) {
 
     var clazz = declare([BaseWidget, _WidgetsInTemplateMixin], {
 
@@ -47,98 +41,12 @@ define([
       timelineDates: [],
 
       postCreate: function () {
-        // window.lastwidget.setIsOverview(true);
-        this._config = lang.clone(this.config.editor);
-        // this._config = lang.clone(this.config);
-        var that = this;
-
-        //Load all data if not already loaded
-        // if (window.PMS == null || window.IDTA == null || window.tenancy == null || window.subtenants == null) {
-        //   //Load all data
-        //   var PMS = [], IDTA = [], subtenants = [], tenancy = [];
-
-        //   var pmsQueryTask = new QueryTask({
-        //     url: this._config.layerInfos[0].featureLayer.url
-        //   });
-        //   var tenancyQueryTask = new QueryTask({
-        //     url: this._config.layerInfos[3].featureLayer.url
-        //   });
-        //   var idtaQueryTask = new QueryTask({
-        //     url: this._config.layerInfos[1].featureLayer.url
-        //   });
-        //   var subtenantsQueryTask = new QueryTask({
-        //     url: this._config.layerInfos[2].featureLayer.url
-        //   });
-
-        //   var query = new Query();
-        //   query.returnGeometry = false;
-        //   // query.where = "timeline = '" + new Date(this.slider.get("value")).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + "'";
-        //   query.where = "1=1"
-        //   query.outFields = ["*"];
-
-        //   pmsQueryTask.execute(query).then(function (pmsResults) {
-        //     var resultset = pmsResults.features;
-        //     console.log("PMS");
-        //     for (var i = 0; i < resultset.length; i++) {
-        //       PMS.push(resultset[i].attributes);
-        //     }
-        //     window.PMS = PMS
-        //   }).then(function () {
-        //     return tenancyQueryTask.execute(query);
-        //   }).then(function (tenancyResults) {
-        //     var resultset = tenancyResults.features;
-        //     console.log("tenancy");
-        //     for (var i = 0; i < resultset.length; i++) {
-        //       tenancy.push(resultset[i].attributes);
-        //     }
-        //     window.tenancy = tenancy
-        //   }).then(function () {
-        //     return idtaQueryTask.execute(query);
-        //   }).then(function (idtaResults) {
-        //     var resultset = idtaResults.features;
-        //     console.log("IDTA");
-        //     for (var i = 0; i < resultset.length; i++) {
-        //       IDTA.push(resultset[i].attributes);
-        //     }
-        //     window.IDTA = IDTA
-        //   }).then(function () {
-        //     return subtenantsQueryTask.execute(query);
-        //   }).then(function (subtenantsResults) {
-        //     var resultset = subtenantsResults.features;
-        //     console.log("subtenants");
-        //     for (var i = 0; i < resultset.length; i++) {
-        //       subtenants.push(resultset[i].attributes);
-        //     }
-        //     window.subtenants = subtenants
-        //     return
-        //   }).then(function () {
-        //     // Actual work after loading all data
-        //     // that._ChangeView();
-        //     that._loadSlider();
-        //   });
-        // } else {
-          // this._ChangeView();
-          this._loadSlider();
-        // }
-
+        this._loadSlider();
         this.inherited(arguments);
       },
       onOpen: function () {
         window.lastwidget.setWidget("Overview");
-      },
-
-
-      _ChangeView: function () {
-        this.sceneView.map.layers.forEach(function (layer) {
-          // Turn on building layer
-          if (layer.title == "SLA Buildings") {
-            layer.visible = true;
-          }
-          // Turn off unit layer
-          if (layer.title == "Buildings Tanglin") {
-            layer.visible = false;
-          }
-        });
+        this._onSliderValueChanged();
       },
 
       _loadSlider: function () {
@@ -162,7 +70,6 @@ define([
         this.slider.startup();
 
         this.own(on(this.slider, 'change', lang.hitch(this, this._onSliderValueChanged)));
-        this._onSliderValueChanged();
       },
 
       _onSliderValueChanged: function () {

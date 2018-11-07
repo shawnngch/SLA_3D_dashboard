@@ -38,10 +38,11 @@ section{
 }
 
 .jimu-widget-overview .slider-container{
-  height: 10%;
+  /* height: 10%; */
+  margin-bottom: 10px;
 }
 .jimu-widget-overview #col-container{
-  height: 90%;
+  height: calc(100% - 40px);
 }
 .jimu-widget-overview h3{
   background-color: #555;

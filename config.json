@@ -253,9 +253,7 @@
         "name": "Overview",
         "url": "/widgets/Overview/",
         "index": 6,
-        "icon": "images/Icons/Overview.png",
-        "config": "configs/Overview/config_widgets_Overview.json",
-        "mainConfig": "configs/mainConfig.json"
+        "icon": "images/Icons/Overview.png"
       },
       {
         "uri": "widgets/Leasing/Widget",
@@ -264,9 +262,7 @@
         "name": "Leasing",
         "url": "/widgets/Leasing/",
         "index": 7,
-        "icon": "images/Icons/Leasing.png",
-        "config": "configs/Leasing/config_widgets_Leasing.json",
-        "mainConfig": "configs/mainConfig.json"
+        "icon": "images/Icons/Leasing.png"
       },
       {
         "uri": "widgets/Sub-tenants/Widget",

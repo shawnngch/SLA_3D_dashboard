@@ -1,9 +1,4 @@
-.jimu-widget-overview .time-zone{
-  overflow: hidden;
-  margin-top: 15px;
-}
-
-.jimu-widget-overview .filter{
+.jimu-widget-leasing .filter{
   width: 300px;
   height: 20px;
   line-height: 30px;
@@ -11,7 +6,7 @@
   border:1px solid #ccc;
 }
 
-.jimu-rtl .jimu-widget-overview .filter{
+.jimu-rtl .jimu-widget-leasing .filter{
   padding-left: 0;
   padding-right: 10px;
 }
@@ -24,26 +19,26 @@ section{
 .chart-container, .content-container{
   position: relative;
   height:100%;
-  padding: 5px;
+  /* padding: 5px; */
 }
 .container{
   width: 100%;
   height: 100%;
   /* border: 1px solid gray; */
 }
-.jimu-widget-overview .card{
+.jimu-widget-leasing .card{
   padding: 1px;
   /* display: inline-block; */
   position: relative;
 }
 
-.jimu-widget-overview .filter-container{
+/* .jimu-widget-leasing .filter-container{
   height: 10%;
+} */
+.jimu-widget-leasing #col-container{
+  height: calc(100% - 50px);
 }
-.jimu-widget-overview #col-container{
-  height: 90%;
-}
-.jimu-widget-overview h3{
+.jimu-widget-leasing h3{
   background-color: #555;
   color: #f5f5f5;
   margin: 0px;
@@ -51,19 +46,23 @@ section{
   text-align: center;
   width: 100%;
 }
-.jimu-widget-overview .card .card-content{
-  font-size: 1.5em;
+.jimu-widget-leasing .card .card-content{
+  /* font-size: 1.5em; */
 
   margin: 0;
   position: absolute;
-  top: 50%;
+  height: 100%;
+  width:  100%;
+
+  /* top: 50%;
   left: 50%;
   -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); */
 }
 
-.jimu-widget-overview #LeaseDue table{
-  height: calc(100% - 20px);
+.jimu-widget-leasing #LeaseDue .content-container table{
+  /* height: calc(100% - 20px); */
+  height: 100%;
   width:  100%;
   font-size: 1.2em;
 }
