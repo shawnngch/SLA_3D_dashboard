@@ -62,10 +62,15 @@ define([
         window.lastwidget.setWidget("Leasing");
 
         this._onFilterChanged();
+
+        var dd = $('.ui.dropdown').dropdown();
       },
 
       _onFilterChanged: function () {
         console.log("_onFilterChanged")
+
+        var tenantvalues = $('.ui.dropdown').dropdown('get value');
+        console.log(tenantvalues)
         var NLAChart = this.NLAChart;
         function findWithAttr(array, attr, value) {
           for (var i = 0; i < array.length; i += 1) {
@@ -82,12 +87,14 @@ define([
         var IDTA = [], tenancy = [], PMS = [];
 
         for (var i = 0; i < tenancy0.length; i++) {
-          if (tenancy0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+          // if (tenancy0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+          if (tenantvalues.indexOf(tenancy0[i].TA_Account) != -1 || this.TenantFilter.value == '') {
             tenancy.push(tenancy0[i])
           }
         }
         for (var i = 0; i < IDTA0.length; i++) {
-          if (IDTA0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+          // if (IDTA0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+          if (tenantvalues.indexOf(IDTA0[i].TA_Account) != -1 || this.TenantFilter.value == '') {
             IDTA.push(IDTA0[i])
           }
         }
@@ -145,7 +152,7 @@ define([
             datasets: [{
               label: 'Current Rent',
               yAxisID: 'Current Rent',
-              data: [90, 250, 300, 250, 300, 97],
+              // data: [90, 250, 300, 250, 300, 97],
               backgroundColor: 'rgba(255, 99, 132, 0.2)',
               borderColor: 'rgba(255,99,132,1)',
               borderWidth: 2,
@@ -304,8 +311,11 @@ define([
           // console.log(TATableData)
           // console.log(colNames)
         } else {
-          // this.TADT.column(3).search(this.TenantFilter.value + "|2007-211647B", true, false).draw();
-          this.TADT.column(3).search(this.TenantFilter.value).draw();
+          var searchstr = tenantvalues.join("|");
+
+          this.TADT.column(3).search(searchstr, true, false).draw();
+          // this.TADT.column(3).search(searchstr, true, false).draw();
+          // this.TADT.column(3).search(this.TenantFilter.value).draw();
         }
 
         // $('#TATable tbody').on('click', 'tr', function () {
