@@ -95,6 +95,21 @@
         "name": "Search"
       },
       {
+        "uri": "widgets/Legend0/Widget",
+        "position": {
+          "width": "15%",
+          "right": 50,
+          "top": 50,
+          "zIndex": 103,
+          "relativeTo": "browser"
+        },
+        "version": "2.9",
+        "id": "widgets_Legend0",
+        "url": "/webappbuilder/apps/2/widgets/Legend0/",
+        "icon": "widgets/Search/images/icon.png",
+        "name": "Legend0"
+      },
+      {
         "uri": "widgets/Filter0/Widget",
         "position": {
           "width": "40%",
@@ -104,7 +119,7 @@
           "relativeTo": "browser"
         },
         "version": "2.9",
-        "id": "widgets_Search_Widget_17",
+        "id": "widgets_Filter0_Widget_17",
         "url": "/webappbuilder/apps/2/widgets/Filter0/",
         "icon": "widgets/Search/images/icon.png",
         "name": "Filter0",
@@ -230,9 +245,11 @@
       "bottom": 24,
       "left": 55
     },
+    "itemId0": "c2966e83c5da4da5a715fa0c61273f26",
     "itemId": "55f036fb0d6645f383241f55051f91c3",
     "mapOptions": {},
     "id": "map",
+    "portalUrl0": "http://esrn1609.esrisa.com/portal",
     "portalUrl": "https://demosg.maps.arcgis.com"
   },
   "widgetPool": {
@@ -283,34 +300,6 @@
         "url": "/widgets/Marketing/",
         "index": 9,
         "icon": "images/Icons/Marketing.png"
-      },
-      {
-        "name": "LayerList",
-        "version": "2.9",
-        "uri": "widgets/LayerList/Widget",
-        "index": 10,
-        "id": "widgets_LayerList_Widget_25",
-        "url": "/widgets/LayerList/"
-      },
-      {
-        "name": "Legend",
-        "version": "2.9",
-        "uri": "widgets/Legend/Widget",
-        "index": 11,
-        "id": "widgets_Legend_Widget_26",
-        "url": "/widgets/Legend/"
-      },
-      {
-        "uri": "widgets/Slides/Widget",
-        "version": "2.9",
-        "id": "widgets_Slides_Widget_12",
-        "name": "Slides",
-        "url": "/widgets/Slides/",
-        "position": {
-          "relativeTo": "map"
-        },
-        "index": 12,
-        "icon": "widgets/Slides/images/icon.png"
       }
     ],
     "groups": []

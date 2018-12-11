@@ -30,6 +30,9 @@ define([
   'esri/geometry/Extent',
   'esri/geometry/Point',
   "esri/layers/SceneLayer",
+  "esri/layers/MapImageLayer",
+  "esri/layers/TileLayer",
+  "esri/Basemap",
   './utils',
 
   './dijit/LoadingShelter',
@@ -39,7 +42,10 @@ define([
   './WebSceneLoader',
   'esri/Viewpoint'
 ], function (declare, lang, array, html, topic, on,/* aspect,*/ keys,/* Deferred, InfoWindow,
-  PopupMobile, InfoTemplate,*/ Extent, Point, SceneLayer, jimuUtils, LoadingShelter, /*LayerInfos,
+  PopupMobile, InfoTemplate,*/ Extent, Point, SceneLayer, MapImageLayer,
+  TileLayer, Basemap,
+  
+  jimuUtils, LoadingShelter, /*LayerInfos,
   MapUrlParamsHandler,*/ AppStateManager, WebSceneLoader, Viewpoint) {
 
   var instance = null,
@@ -222,24 +228,35 @@ define([
             }
           }
             // Shawn - Add Building Scene
-            //subtenant
-            var TanglinBuildings = new SceneLayer({
-              url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Buildings_Tanglin/SceneServer",
-              //https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings_Tanglin/FeatureServer/0
-              popupEnabled: true,
-              outFields: ["*"],
-              visible: false
-              // definitionExpression: definitionExpression
-            })
-            //property
-            var SLA_Buildings = new SceneLayer({
-              url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings/SceneServer/layers/0",
-              //https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings/FeatureServer/0
-              popupEnabled: true,
-              outFields: ["*"],
-              visible: true
-            })
-            this.sceneView.map.addMany([TanglinBuildings,SLA_Buildings])
+            // //•	Singapore TIFF 
+            // var TIFF = new MapImageLayer({
+            //   url: "https://tiles.arcgis.com/tiles/GrCObcYo81O3Ymu8/arcgis/rest/services/singapore_10cm_2014_tif/MapServer"
+            // });
+            // //subtenant
+            // var TanglinBuildings = new SceneLayer({
+            //   url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Buildings_Tanglin/SceneServer",
+            //   //https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings_Tanglin/FeatureServer/0
+            //   popupEnabled: true,
+            //   outFields: ["*"],
+            //   visible: false
+            //   // definitionExpression: definitionExpression
+            // })
+            // //property
+            // var SLA_Buildings = new SceneLayer({
+            //   url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings/SceneServer/layers/0",
+            //   //https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings/FeatureServer/0
+            //   popupEnabled: true,
+            //   outFields: ["*"],
+            //   visible: true
+            // })
+            // //LOD2
+            // var LOD2 = new SceneLayer({
+            //   url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/LOD2_Textured/SceneServer",
+            //   popupEnabled: true,
+            //   outFields: ["*"],
+            //   visible: true
+            // })
+            // this.sceneView.map.addMany([TIFF, TanglinBuildings,SLA_Buildings,LOD2])
           }), lang.hitch(this, function () {
           if (this.loading) {
             this.loading.destroy();

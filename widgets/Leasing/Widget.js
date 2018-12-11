@@ -38,69 +38,78 @@ define([
     var clazz = declare([BaseWidget, _WidgetsInTemplateMixin], {
 
       baseClass: 'jimu-widget-leasing',
-      _config: null,
-      SnapshotDate: window.SnapshotDate,
       tenancyList: [],
       TADT: null,
       DataTableLoaded: false,
+      FilterValues: null,
 
       postCreate: function () {
         this.inherited(arguments);
 
-        // this._config = lang.clone(this.config.editor);
-
-        var SnapshotDate = this.SnapshotDate
-        if (!this.SnapshotDate) {
-          console.log("no SnapshotDate")
-          SnapshotDate = new Date("2018-10-01");
-          this.SnapshotDate = SnapshotDate;
-        }
-
         this._AfterLoad();
+
+        var that = this
+        //Global Variable Listener (on window.filterlistener)
+        window.filterlistener.registerListener(function (val) {
+          // alert("Someone changed the value of x.a to " + val);
+          that._onFilterChanged();
+        });
+
       },
       onOpen: function () {
         window.lastwidget.setWidget("Leasing");
-
-        this._onFilterChanged();
-
-        var dd = $('.ui.dropdown').dropdown();
+        //Show first tab for Expiry Chart
+        $("#Exp6M").click()
       },
 
       _onFilterChanged: function () {
         console.log("_onFilterChanged")
 
-        var tenantvalues = $('.ui.dropdown').dropdown('get value');
+        var tenantvalues = $('#TenantFilter').dropdown('get value');
         console.log(tenantvalues)
         var NLAChart = this.NLAChart;
-        function findWithAttr(array, attr, value) {
+        function findWithAttr(array, attr, value, attr2, value2) {
           for (var i = 0; i < array.length; i += 1) {
-            if (array[i][attr] === value) {
-              return i;
+            if (!attr2 && !value2) {
+              if (array[i][attr] === value) {
+                return i;
+              }
+            } else {
+              if (array[i][attr] === value && array[i][attr2] === value2) {
+                return i;
+              }
             }
           }
           return -1;
         }
 
         //Full set of data
-        var IDTA0 = window.IDTA, tenancy0 = window.tenancy, PMS0 = window.PMS;
+        var IDTA0 = window.IDTA, tenancy0 = window.tenancy, PMS0 = window.PMS, subtenants0 = window.subtenants;
         //Data based on filter
-        var IDTA = [], tenancy = [], PMS = [];
+        var IDTA = [], tenancy = [], PMS = [], subtenants = [];
 
         for (var i = 0; i < tenancy0.length; i++) {
           // if (tenancy0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
-          if (tenantvalues.indexOf(tenancy0[i].TA_Account) != -1 || this.TenantFilter.value == '') {
-            tenancy.push(tenancy0[i])
+          if (tenantvalues.indexOf(tenancy0[i].TA_Account) != -1 || tenantvalues.length == 0) {
+            if (tenancy0[i].Timeline == window.maxTimeline) tenancy.push(tenancy0[i])
           }
         }
         for (var i = 0; i < IDTA0.length; i++) {
           // if (IDTA0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
-          if (tenantvalues.indexOf(IDTA0[i].TA_Account) != -1 || this.TenantFilter.value == '') {
-            IDTA.push(IDTA0[i])
+          if (tenantvalues.indexOf(IDTA0[i].TA_Account) != -1 || tenantvalues.length == 0) {
+            if (IDTA0[i].Timeline == window.maxTimeline) IDTA.push(IDTA0[i])
           }
         }
         for (var i = 0; i < IDTA.length; i++) {
-          if (!(findWithAttr(PMS0, "", IDTA[i].PROPERTY_ID))) {
-            PMS.push(PMS0[i])
+          var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA[i].Property_ID, "Timeline", window.maxTimeline)
+          // console.log(IDTA[i].Property_ID + " " + PMSindex)
+          if (PMSindex != -1) {
+            PMS.push(PMS0[PMSindex])
+          }
+        }
+        for (var i = 0; i < subtenants0.length; i++) {
+          if (tenantvalues.indexOf(subtenants0[i].TA_Account) != -1 || tenantvalues.length == 0) {
+            subtenants.push(subtenants0[i])
           }
         }
 
@@ -152,7 +161,7 @@ define([
             datasets: [{
               label: 'Current Rent',
               yAxisID: 'Current Rent',
-              // data: [90, 250, 300, 250, 300, 97],
+              data: [90, 250, 300, 250, 300, 97],
               backgroundColor: 'rgba(255, 99, 132, 0.2)',
               borderColor: 'rgba(255,99,132,1)',
               borderWidth: 2,
@@ -195,9 +204,9 @@ define([
                   display: true,
                   labelString: "Current Rent ('000)"
                 },
-                ticks: {
-                  max: 330,
-                }
+                // ticks: {
+                //   max: 330,
+                // }
               }, {
                 id: 'NLA',
                 type: 'linear',
@@ -206,9 +215,9 @@ define([
                   display: true,
                   labelString: "NLA ('000)"
                 },
-                ticks: {
-                  max: maxNLA,
-                }
+                // ticks: {
+                //   max: maxNLA,
+                // }
               }]
             },
             legend: {
@@ -333,15 +342,31 @@ define([
       },
 
       _AfterLoad: function () {
-        this.TenantFilter.innerHTML = "<option></option>"
-        for (var i = 0; i < window.tenancy.length; i++) {
-          if (this.tenancyList.indexOf(window.tenancy[i].TA_Account) == -1) {
-            this.TenantFilter.innerHTML += "<option value='" + window.tenancy[i].TA_Account + "'>" + window.tenancy[i].TA_Account + " - " + window.tenancy[i].Licensee_Tenant_Name + "</option>"
-            this.tenancyList.push(window.tenancy[i].TA_Account)
-          }
+        // this.TenantFilter.innerHTML = "<option></option>"
+        // for (var i = 0; i < window.tenancy.length; i++) {
+        //   if (this.tenancyList.indexOf(window.tenancy[i].TA_Account) == -1) {
+        //     this.TenantFilter.innerHTML += "<option value='" + window.tenancy[i].TA_Account + "'>" + window.tenancy[i].TA_Account + " - " + window.tenancy[i].Licensee_Tenant_Name + "</option>"
+        //     this.tenancyList.push(window.tenancy[i].TA_Account)
+        //   }
+        // }
+        // this.own(on(this.TenantFilter, 'change', lang.hitch(this, this._onFilterChanged)));
+      },
+      _chartSelect: function (evt) {
+        console.log(evt.currentTarget.id)
+
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
         }
-        this.own(on(this.TenantFilter, 'change', lang.hitch(this, this._onFilterChanged)));
-      }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById("tab"+evt.currentTarget.id).style.display = "block";
+        evt.currentTarget.className += " active";
+
+      },
 
     });
     return clazz;

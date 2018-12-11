@@ -35,95 +35,102 @@ define([
 
     baseClass: 'jimu-widget-overview',
 
-    //lighting._lastTimezone:The time zone which map shows
-    //lighting.date: The date map uses
-
     postCreate: function () {
       this.inherited(arguments);
+      var that = this
+      //Global Variable Listener (on window.filterlistener)
+      window.filterlistener.registerListener(function (val) {
+        //populate Cluster Info
+        // that._populateClusterInfo();
+      });
 
-      this.sceneView.when(lang.hitch(this, this._init));
     },
-    onOpen:function(){
+    onOpen: function () {
       window.lastwidget.setWidget("Marketing");
+      $("#datepicker").datepicker({ dateFormat: 'dd M yy' });
+
+      var that = this
+      $('#datepicker').change(function () {
+        window.OccupationDate.DateVal = that.datepicker0.value
+        console.log(that.datepicker0.value)
+
+        that.colcontainer.classList.add("hidden");
+
+        //populate Cluster Info
+        that._populateClusterInfo();
+      });
+
+      var view = this.sceneView
+      view.on("click", function (event) {
+        view.hitTest(event.screenPoint).then(function (response) {
+          var graphic = response.results[0].graphic;
+          var feature = that._findFeature(window.Buildings, graphic);
+          console.log(feature);
+          if (!(feature == null)) {
+            that.colcontainer.classList.remove("hidden");
+            that._populateContent(feature);
+
+          } else {
+            that.colcontainer.classList.add("hidden");
+
+          }
+        });
+      });
     },
 
-    _init: function () {
+    _findFeature: function (layer, graphic) {
+      var feature = layer.filter(function (b) {
+        return (b.OBJECTID === graphic.attributes.OBJECTID);
+      })[0];
+      return feature;
+    },
 
-      //init UI
-      // var date = this._getDateOfLighting();
-      //use lighting.date to init monthSelect
-      // this._initMonthSelect(date);
-      //use initialTimeZone to init zoneSelect
-      // this._initZoneSelect();
-      //use lighting.date and GMT to init slider
-      // this._updateSliderUIByDate(date);
-
-      //bind events
-      // var lighting = this.sceneView.environment.lighting;
-      // this.own(on(lighting, "date-will-change", lang.hitch(this, this._onDateWillChange)));
-      // this.own(on(this.zoneSelect, 'change', lang.hitch(this, this._onZoneSelectChanged)));
-      // this.own(on(this.monthSelect, 'change', lang.hitch(this, this._onMonthSelectChanged)));
-      // this.own(on(this.slider, 'change', lang.hitch(this, this._onSliderValueChanged)));
-
-
-      // var LeaseExpiryChart = this.LeaseExpiryChart;
-      var LeaseExpiryChart = this.LeaseExpiryChart;
-
-      var LEChart = new Chart(LeaseExpiryChart, {
-        type: 'line',
-        data: {
-          labels: ['2018', '2019', '2020'],
-          datasets: [{
-            label: 'Current Rent',
-            yAxisID: 'Current Rent',
-            data: [90000, 250000, 300000],
-            backgroundColor: 'rgba(255, 255, 255, 0.0)',
-            // backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255,99,132,1)',
-            borderWidth: 1,
-            xAxisID: "x-axis1",
-          }, {
-            label: 'NILA',
-            yAxisID: 'NILA',
-            data: [3009, 4800, 1800],
-            backgroundColor: 'rgba(255, 255, 255, 0.0)',
-            // backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            // type: 'line',
-            borderWidth: 1,
-            xAxisID: "x-axis1",
-          }]
-        },
-        options: {
-          scales: {
-            xAxes: [{
-              stacked: true,
-              id: "x-axis1",
-              barThickness: 70,
-            }],
-            yAxes: [{
-              id: 'Current Rent',
-              type: 'linear',
-              position: 'left',
-              scaleLabel: {
-                display: true,
-                labelString: 'Current Rent'
-              }
-            }, {
-              id: 'NILA',
-              type: 'linear',
-              position: 'right',
-              scaleLabel: {
-                display: true,
-                labelString: 'NILA'
-              }
-            }]
-          },
-          legend: {
-            display: true
+    _populateClusterInfo: function () {
+      
+      function findWithAttr(array, attr, value, attr2, value2) {
+        for (var i = 0; i < array.length; i += 1) {
+          if (!attr2 && !value2) {
+            if (array[i][attr] === value) {
+              return i;
+            }
+          } else {
+            if (array[i][attr] === value && array[i][attr2] === value2) {
+              return i;
+            }
           }
         }
-      });
+        return -1;
+      }
+      //Full set of data
+      var IDTA0 = window.IDTA, tenancy0 = window.tenancy, PMS0 = window.PMS, subtenants0 = window.subtenants;
+      //Data based on filter
+      var IDTA = [], tenancy = [], PMS = [], subtenants = [], listTAAccounts = [] //,listTAAccounts_IDTA = [];
+
+      for (var i = 0; i < tenancy0.length; i++) {
+        var dateOccupationDate = new Date(window.OccupationDate.DateVal)
+        var TAExpiry = new Date(tenancy0[i].ExistingTAExpiryDate), Timeline = new Date(tenancy0[i].Timeline), maxTimeline = new Date(window.maxTimeline)
+
+        if (TAExpiry <= dateOccupationDate && Timeline.getTime() == maxTimeline.getTime()) {
+          tenancy.push(tenancy0[i])
+          listTAAccounts.push(tenancy0[i].TA_Account)
+        }
+      }
+
+      for (var i = 0; i < IDTA0.length; i++) {
+        if ((listTAAccounts.indexOf(IDTA0[i].TA_Account) != -1 || listTAAccounts.length == 0)&&(IDTA0[i].Timeline == window.maxTimeline)){
+            IDTA.push(IDTA0[i])
+        }
+      }
+      for (var i = 0; i < IDTA.length; i++) {
+        var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA[i].Property_ID, "Timeline", window.maxTimeline)
+        if (PMSindex != -1) {
+          PMS.push(PMS0[PMSindex])
+        }
+      }
+
+    },
+
+    _populateContent: function (feature) {
 
     }
 

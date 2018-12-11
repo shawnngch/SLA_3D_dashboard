@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Chrome",
             "url": "http://localhost/SLA_3D_dashboard/",
-            // "url": "http://localhost/~shawnng/SLA_3D_dashboard/",
+            //"url": "http://localhost/~shawnng/SLA_3D_dashboard/",
             "webRoot": "${workspaceFolder}"
         }
     ]

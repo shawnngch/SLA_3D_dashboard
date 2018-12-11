@@ -40,7 +40,10 @@ define([
     SnapshotDate: window.SnapshotDate,
     tenancyList: [],
     TADT: null,
-    DataTableLoaded: false,
+    subtenancyDT: null,
+    TADataTableLoaded: false,
+    subtenancyTableLoaded: false,
+
 
     //lighting._lastTimezone:The time zone which map shows
     //lighting.date: The date map uses
@@ -48,114 +51,69 @@ define([
     postCreate: function () {
       this.inherited(arguments);
 
-      this._config = lang.clone(this.config.editor);
-      var that = this;
+      // this._config = lang.clone(this.config.editor);
 
-      var SnapshotDate = this.SnapshotDate
-      if (!this.SnapshotDate) {
-        console.log("no SnapshotDate")
-        SnapshotDate = new Date("2018-10-01");
-        this.SnapshotDate = SnapshotDate;
-      }
-
-      // //Check if Data not loaded
-      // if (window.PMS == null || window.IDTA == null || window.tenancy == null || window.subtenants == null) {
-      //Load all data
-      var PMS = [], IDTA = [], subtenants = [], tenancy = [];
-
-      var pmsQueryTask = new QueryTask({
-        url: this._config.layerInfos[0].featureLayer.url
+      // this._AfterLoad();
+      var that = this
+      //Global Variable Listener (on window.filterlistener)
+      window.filterlistener.registerListener(function (val) {
+        // alert("Someone changed the value of x.a to " + val);
+        that._onFilterChanged();
       });
-      var tenancyQueryTask = new QueryTask({
-        url: this._config.layerInfos[3].featureLayer.url
-      });
-      var idtaQueryTask = new QueryTask({
-        url: this._config.layerInfos[1].featureLayer.url
-      });
-      var subtenantsQueryTask = new QueryTask({
-        url: this._config.layerInfos[1].featureLayer.url
-      });
-
-      var query = new Query();
-      query.returnGeometry = false;
-      query.where = "1=1"
-      query.outFields = ["*"];
-
-      pmsQueryTask.execute(query).then(function (pmsResults) {
-        var resultset = pmsResults.features;
-        console.log("PMS");
-        for (var i = 0; i < resultset.length; i++) {
-          PMS.push(resultset[i].attributes);
-        }
-        window.PMS = PMS
-      }).then(function () {
-        return tenancyQueryTask.execute(query);
-      }).then(function (tenancyResults) {
-        var resultset = tenancyResults.features;
-        console.log("tenancy");
-        for (var i = 0; i < resultset.length; i++) {
-          tenancy.push(resultset[i].attributes);
-        }
-        window.tenancy = tenancy
-      }).then(function () {
-        return idtaQueryTask.execute(query);
-      }).then(function (idtaResults) {
-        var resultset = idtaResults.features;
-        console.log("IDTA");
-        for (var i = 0; i < resultset.length; i++) {
-          IDTA.push(resultset[i].attributes);
-        }
-        window.IDTA = IDTA
-      }).then(function () {
-        return subtenantsQueryTask.execute(query);
-      }).then(function (subtenantsResults) {
-        var resultset = subtenantsResults.features;
-        console.log("subtenants");
-        for (var i = 0; i < resultset.length; i++) {
-          subtenants.push(resultset[i].attributes);
-        }
-        window.subtenants = subtenants
-        return
-      }).then(function () {
-        // Actual work after loading all data
-        that._AfterLoad()
-      });
-      // } else {
-      //   this._AfterLoad();
-      // }
     },
-    onOpen:function(){
+    onOpen: function () {
       window.lastwidget.setWidget("Subtenant");
+      // var dd = $('#TA1').dropdown();
+
+      // this._onFilterChanged();
+
     },
 
     _onFilterChanged: function () {
       console.log("_onFilterChanged")
-      function findWithAttr(array, attr, value) {
+
+      var tenantvalues = $('#TenantFilter').dropdown('get value');
+      console.log(tenantvalues)
+      function findWithAttr(array, attr, value, attr2, value2) {
         for (var i = 0; i < array.length; i += 1) {
-          if (array[i][attr] === value) {
-            return i;
+          if (!attr2 && !value2) {
+            if (array[i][attr] === value) {
+              return i;
+            }
+          } else {
+            if (array[i][attr] === value && array[i][attr2] === value2) {
+              return i;
+            }
           }
         }
         return -1;
       }
 
       //Full set of data
-      var IDTA0 = window.IDTA, tenancy0 = window.tenancy, PMS0 = window.PMS; subtenants0 = window.subtenants;
-
-      var maxTimeLine = Math.max.apply(Math, tenancy0.map(function (t) { return t.Timeline; }))
-      const PMS_filtered = window.PMS.filter(el => el.Timeline == maxTimeLine);
-      const IDTA_filtered = window.IDTA.filter(el => el.Timeline == maxTimeLine);
-      const tenancy_filtered = window.tenancy.filter(el => el.Timeline == maxTimeLine);
+      var IDTA0 = window.IDTA, tenancy0 = window.tenancy, PMS0 = window.PMS, subtenants0 = window.subtenants;
       //Data based on filter
       var IDTA = [], tenancy = [], PMS = [], subtenants = [];
 
-      for (var i = 0; i < tenancy_filtered.length; i++) {
-        if ((tenancy_filtered[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') && tenancy_filtered[i].Timeline == maxTimeLine) {
-          tenancy.push(tenancy_filtered[i])
+      for (var i = 0; i < tenancy0.length; i++) {
+        // if (tenancy0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+        if (tenantvalues.indexOf(tenancy0[i].TA_Account) != -1 || tenantvalues.length == 0) {
+          if (tenancy0[i].Timeline == window.maxTimeline) tenancy.push(tenancy0[i])
+        }
+      }
+      for (var i = 0; i < IDTA0.length; i++) {
+        // if (IDTA0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
+        if (tenantvalues.indexOf(IDTA0[i].TA_Account) != -1 || tenantvalues.length == 0) {
+          if (IDTA0[i].Timeline == window.maxTimeline) IDTA.push(IDTA0[i])
+        }
+      }
+      for (var i = 0; i < IDTA.length; i++) {
+        var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA[i].Property_ID, "Timeline", window.maxTimeline)
+        if (PMSindex != -1) {
+          PMS.push(PMS0[PMSindex])
         }
       }
       for (var i = 0; i < subtenants0.length; i++) {
-        if ((subtenants0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '')) {
+        if (tenantvalues.indexOf(subtenants0[i].TA_Account) != -1 || tenantvalues.length == 0) {
           subtenants.push(subtenants0[i])
         }
       }
@@ -163,58 +121,37 @@ define([
 
       // //Get data for expiryTable
       // var totalExpiring = 0, allocationNo = { modeOfAllocation: [], qty: [] }, 
-      var TATableData = [];
+      // var TATableData = [];
       const tenancyAttributes = Object.keys(tenancy[0])
       const subtenantsAttributes = Object.keys(subtenants[0])
-      for (var i = 0; i < tenancy.length; i++) {
-        //   if (tenancy[i].ExistingTAExpiryDate > new Date()) {
-        //     var MOA = tenancy[i].Mode_of_allocation
-        //     var modeIndex = allocationNo.modeOfAllocation.indexOf(MOA)
-        //     totalExpiring += 1
-        //     if (modeIndex == -1) {
-        //       allocationNo.modeOfAllocation.push(tenancy[i].Mode_of_allocation)
-        //       allocationNo.qty.push(1)
-        //     } else {
-        //       allocationNo.qty[modeIndex] += 1
-        //     }
-        //   }
-        const tenancyRowArray = Object.values(tenancy[i])
-        TATableData.push(tenancyRowArray)
-      }
-      var TATableData1 = tenancy.map(function (obj) {
+      // for (var i = 0; i < tenancy.length; i++) {
+      //   const tenancyRowArray = Object.values(tenancy[i])
+      //   TATableData.push(tenancyRowArray)
+      // }
+      var TATableData = tenancy.map(function (obj) {
         return Object.keys(obj).map(function (key) {
           return obj[key];
         });
       });
-      var subtenantTableData = subtenants.map(function (obj) {
-        return Object.keys(obj).sort().map(function (key) {
+      var subtenancyTableData = subtenants.map(function (obj) {
+        return Object.keys(obj).map(function (key) {
           return obj[key];
         });
       });
 
-      // //Set data for expiryTable
-      // this.expiringTable.innerHTML = ""
-      // for (var i = 0; i < allocationNo.modeOfAllocation.length; i++) {
-      //   var rowHTML = "<tr>"
-      //   if (i == 0) {
-      //     rowHTML += "<td rowspan=" + allocationNo.modeOfAllocation.length + "><strong>" + totalExpiring + "</strong></td>"
-      //   }
-      //   rowHTML += "<td>" + allocationNo.modeOfAllocation[i] + "</td><td>" + allocationNo.qty[i] + "</td></tr>"
-      //   this.expiringTable.innerHTML += rowHTML
-      // }
-
-      var tenancyColNames = [], subtenancyColNames = [];
+      var TAColNames = [], subtenancyColNames = [];
       for (var i = 0; i < tenancyAttributes.length; i++) {
-        tenancyColNames.push({ title: tenancyAttributes[i] })
+        TAColNames.push({ title: tenancyAttributes[i] })
       }
       for (var i = 0; i < subtenantsAttributes.length; i++) {
         subtenancyColNames.push({ title: subtenantsAttributes[i] })
       }
 
-      if (this.DataTableLoaded == false) {
-        this.TADT = $('#TATable').DataTable({
+      //TATable
+      if (this.TADataTableLoaded == false) {
+        this.TADT = $('#TATable1').DataTable({
           data: TATableData,
-          columns: colNames,
+          columns: TAColNames,
           columnDefs: [
             {
               targets: [0],
@@ -242,23 +179,55 @@ define([
           paging: false,
           dom: 't'
         });
-        this.DataTableLoaded = true
-        console.log("DataTableLoaded = " + this.DataTableLoaded)
-        console.log(TATableData)
-        console.log(colNames)
+        this.TADataTableLoaded = true
+        console.log("DataTableLoaded = " + this.TADataTableLoaded)
       } else {
-        this.TADT.column(2).search(this.TenantFilter.value).draw();
+        var searchstr = tenantvalues.join("|");
+
+        this.TADT.column(3).search(searchstr, true, false).draw();
+      }
+      //subtenancyTable
+      if (this.subtenancyTableLoaded == false) {
+        this.subtenancyDT = $('#subtenancyTable').DataTable({
+          data: subtenancyTableData,
+          columns: subtenancyColNames,
+          // columnDefs: [
+          //   {
+          //     targets: [0],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [1],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [2],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [3],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [12],
+          //     visible: false
+          //   }
+          // ],
+          scrollY: '250',
+          scrollX: true,
+          paging: false,
+          dom: 't'
+        });
+        this.subtenancyTableLoaded = true
+        console.log("subtenancyTableLoaded = " + this.subtenancyTableLoaded)
+      } else {
+        var searchstr = tenantvalues.join("|");
+
+        this.subtenancyDT.column(2).search(searchstr, true, false).draw();
       }
 
-      // $('#TATable tbody').on('click', 'tr', function () {
-      //   if ($(this).hasClass('selected')) {
-      //     $(this).removeClass('selected');
-      //   }
-      //   else {
-      //     $('#TATable').DataTable().$('tr.selected').removeClass('selected');
-      //     $(this).addClass('selected');
-      //   }
-      // });
+
+
     },
 
     _AfterLoad: function () {
@@ -270,7 +239,6 @@ define([
         }
       }
       this.own(on(this.TenantFilter, 'change', lang.hitch(this, this._onFilterChanged)));
-      this._onFilterChanged();
     }
 
   });

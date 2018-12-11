@@ -56,7 +56,21 @@
       },
       {
         "featureLayer": {
-          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings_Tanglin/FeatureServer/0",
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Buildings_Tanglin_Subtenant/FeatureServer/0",
+          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/Buildings_Tanglin/FeatureServer/0",
+          "layerAllowsCreate": true,
+          "layerAllowsUpdate": true,
+          "layerAllowsDelete": true,
+          "layerAllowGeometryUpdates": true
+        },
+        "disableGeometryUpdate": true,
+        "allowUpdateOnly": false,
+        "allowDelete": false
+      },
+      {
+        "featureLayer": {
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_Bldgs/FeatureServer/0",
+          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Buildings_New/FeatureServer/0",
           "layerAllowsCreate": true,
           "layerAllowsUpdate": true,
           "layerAllowsDelete": true,
@@ -73,8 +87,8 @@
     "editDescription": "Select a template to create features",
     "ViewBy": [
       {
-        "Display": "",
-        "Value": "",
+        "Display": "Facade",
+        "Value": "none",
         "Renderer": {
           "type": "simple",
           "symbol": {
@@ -93,46 +107,9 @@
       {
         "Display": "SLA Department In Charge",
         "Value": "SLA_DeptInCharge",
-        "Renderer0": {
-          "type": "unique-value",
-          "field": "subtenancy_info_SLA_Dept_in_Cha",
-          "defaultSymbol": {
-            "type": "mesh-3d"
-          },
-          "uniqueValueInfos": [
-            {
-              "value": "EM",
-              "symbol": {
-                "type": "mesh-3d",
-                "symbolLayers": [
-                  {
-                    "type": "fill",
-                    "material": {
-                      "color": "red"
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "value": "IHL",
-              "symbol": {
-                "type": "mesh-3d",
-                "symbolLayers": [
-                  {
-                    "type": "fill",
-                    "material": {
-                      "color": "green"
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        },
         "Renderer": {
           "type": "unique-value",
-          "field": "subtenancy_info_SLA_Dept_in_Cha",
+          "field": "SLA_DEPT_IN_CHARGE",
           "uniqueValueInfos": [
             {
               "value": "EM",
@@ -170,7 +147,7 @@
         "Value": "Occupancy",
         "Renderer": {
           "type": "unique-value",
-          "field": "subtenancy_info_Mode_of_Occupat",
+          "field": "MODE_OF_OCCUPATION",
           "uniqueValueInfos": [
             {
               "value": "TA",

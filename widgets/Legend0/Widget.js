@@ -15,34 +15,34 @@
 ///////////////////////////////////////////////////////////////////////////
 
 define([
-    'dojo/_base/declare',
-    'jimu/BaseWidget',
-    'esri/widgets/Legend'
-  ], function(declare, BaseWidget, Legend) {
+  'dojo/_base/declare',
+  'jimu/BaseWidget',
+  'esri/widgets/Legend'
+], function(declare, BaseWidget, Legend) {
 
-    var clazz = declare([BaseWidget], {
+  var clazz = declare([BaseWidget], {
 
-      name: 'Legend0',
-      baseClass: 'jimu-widget-legend',
-      templateString: "<div><div data-dojo-attach-point='legendDiv'></div></div>",
+    name: 'legend0',
+    baseClass: 'jimu-widget-legend0',
+    templateString: "<div><div data-dojo-attach-point='legendDiv'></div></div>",
 
 
-      postCreate: function(){
-        this.inherited(arguments);
+    postCreate: function(){
+      this.inherited(arguments);
 
-        this.legend = new Legend({
-          container:this.legendDiv,
-          view:this.sceneView
-        });
-      },
+      this.legend = new Legend({
+        container:this.legendDiv,
+        view:this.sceneView
+      });
+    },
 
-      destroy: function(){
-        if(!!this.legend){
-          this.legend.destroy();
-        }
-        this.inherited(arguments);
+    destroy: function(){
+      if(!!this.legend){
+        this.legend.destroy();
       }
-    });
-
-    return clazz;
+      this.inherited(arguments);
+    }
   });
+
+  return clazz;
+});

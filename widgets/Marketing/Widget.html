@@ -1,25 +1,18 @@
 ﻿<div class="container">
 	<div class="jimu-r-row">
 		Target Occupation Date:
-		<!-- <div class="filter"></div> --><br />
-		<select name="cars" class="filter">
-			<option value=""></option>
-			<option value="1">first</option>
-			<option value="2">second</option>
-			<option value="3">third</option>
-			<option value="4">fourth</option>
-		</select>
+		<input type="text" id="datepicker" data-dojo-attach-point="datepicker0" class="filter">
 	</div>
-	<section class="inner-wrapper-3" id="col-container">
+	<div class="inner-wrapper-3 hidden" id="col-container" data-dojo-attach-point="colcontainer">
 		<section class="jimu-r-row row-2-3">
 			<section class="col-1-2 card" id="MasterTenant">
-					<section class="row-2-5 col-1-1 card" id="PropertyInformation">
-						<h3>Basic Property Information</h3>
-					</section>
-					<section class="row-3-5 col-1-1 card" id="LeaseExpiry">
-						<h3>Lease Expiry Portfolio by Gross Rental Revenue</h3>
-						<canvas data-dojo-attach-point="LeaseExpiryChart"></canvas>
-					</section>
+				<section class="row-2-5 col-1-1 card" id="ClusterInformation">
+					<h3>Cluster Information</h3>
+				</section>
+				<section class="row-3-5 col-1-1 card" id="LeaseExpiry">
+					<h3>Lease Expiry Portfolio by Gross Rental Revenue</h3>
+					<canvas data-dojo-attach-point="LeaseExpiryChart"></canvas>
+				</section>
 			</section>
 			<section class="col-1-2 card" id="PropertyInformation">
 				<h3>Property Information</h3>
@@ -31,7 +24,7 @@
 			</section>
 		</section>
 
-	</section>
+	</div>
 	<!-- <section class="one-half-col">
 			<section class="one-half-row">
 				<section class="one-half-col">

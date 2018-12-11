@@ -32,11 +32,11 @@ section{
   position: relative;
 }
 
-.jimu-widget-overview .filter-container{
-  height: 10%;
+.jimu-widget-overview .content-container{
+  height: 100%;
 }
 .jimu-widget-overview #col-container{
-  height: 90%;
+  height: 100%;
 }
 .jimu-widget-overview .one-third-col{
   height: calc(100% / 3);

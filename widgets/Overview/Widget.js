@@ -43,10 +43,19 @@ define([
       postCreate: function () {
         this._loadSlider();
         this.inherited(arguments);
+
+        var that = this
+        //Global Variable Listener (on window.filterlistener)
+        window.filterlistener.registerListener(function (val) {
+          // alert("Someone changed the value of x.a to " + val);
+          console.log("filterChange onSliderValueChanged")
+          that._onSliderValueChanged();
+        });
       },
       onOpen: function () {
         window.lastwidget.setWidget("Overview");
-        this._onSliderValueChanged();
+        // console.log("onOpen onSliderValueChanged")
+        // this._onSliderValueChanged();
       },
 
       _loadSlider: function () {
@@ -94,10 +103,48 @@ define([
         //PMS-------------------------------------------------------------------------------------------------------------------
         var OccupiedProperties = 0, marketable = 0, unmarketable = 0, totalProperties = 0;
         var SliderVal = this.slider.get("value")
+        //----
+        var PropVal = $('#PropertyFilter').dropdown('get value');
+        var ClusterVal = $('#ClusterFilter').dropdown('get value');
 
-        const PMS_filtered = window.PMS.filter(el => el.Timeline == SliderVal);
-        const IDTA_filtered = window.IDTA.filter(el => el.Timeline == SliderVal);
-        const tenancy_filtered = window.tenancy.filter(el => el.Timeline == SliderVal);
+        var IDTA0 = window.IDTA, tenancy0 = window.tenancy, PMS0 = window.PMS;
+        //Data based on filter
+        var IDTA_filtered = [], tenancy_filtered = [], PMS_filtered = []
+        var filterInput_TA = []
+
+        if (PropVal.length == 0 && ClusterVal.length == 0) {
+          PMS_filtered = window.PMS.filter(el => el.Timeline == SliderVal);
+          IDTA_filtered = window.IDTA.filter(el => el.Timeline == SliderVal);
+          tenancy_filtered = window.tenancy.filter(el => el.Timeline == SliderVal);
+        } else {
+          for (var i = 0; i < tenancy0.length; i++) {
+            if (ClusterVal.indexOf(tenancy0[i].Classification_of_Cluster_in_Ta) != -1) {
+              if (tenancy0[i].Timeline == SliderVal) {
+                filterInput_TA.push(tenancy0[i].TA_Account)
+                // tenancy_filtered.push(tenancy0[i])
+              }
+            }
+          }
+          for (var i = 0; i < IDTA0.length; i++) {
+            if ( filterInput_TA.indexOf(IDTA0[i].TA_Account) != -1 || PropVal.indexOf(IDTA0[i].Property_ID) != -1) {
+              if (IDTA0[i].Timeline == SliderVal) {
+                IDTA_filtered.push(IDTA0[i])
+              }
+            }
+          }
+          for (var i = 0; i < IDTA_filtered.length; i++) {
+            var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA_filtered[i].Property_ID, "Timeline", SliderVal)
+            var tenancyIndex = findWithAttr(tenancy0, "TA_ACCOUNT", IDTA_filtered[i].TA_ACCOUNT, "Timeline", SliderVal)
+            if (PMSindex != -1) {
+              PMS_filtered.push(PMS0[PMSindex])
+            }
+            if (tenancyIndex != -1) {
+              tenancy_filtered.push(tenancy0[tenancyIndex])
+            }
+          }
+
+        }
+        //----
 
         for (var i = 0; i < PMS_filtered.length; i++) {
           if (PMS_filtered[i].Timeline == this.slider.get("value")) {
@@ -116,7 +163,8 @@ define([
 
             var TA_Account = IDTA_filtered[IDTAindex].TA_Account
             var tenancyIndex = findWithAttr(tenancy, "TA_Account", TA_Account);
-            if (tenancyIndex === -1) { continue; }
+            if (tenancyIndex === -1) { 
+              continue; }
 
             var PMSstartDate = PMS_filtered[i].START_DATE;
             var tenancyStartDate = tenancy[tenancyIndex].ExistingTAStartDate;
@@ -217,6 +265,9 @@ define([
             }]
           },
           options: {
+            'onClick' : (evt, item) => {
+              console.log(item[0]['_model'].label)
+            },
             plugins: {
               datalabels: {
                 color: 'grey',
@@ -276,6 +327,9 @@ define([
             }]
           },
           options: {
+            'onClick' : (evt, item) => {
+              console.log(item[0]['_model'].label)
+            },
             plugins: {
               datalabels: {
                 color: 'grey',
@@ -327,6 +381,9 @@ define([
             ]
           },
           options: {
+            'onClick' : (evt, item) => {
+              console.log(item[0]['_model'].label)
+            },
             plugins: {
               datalabels: {
                 color: 'grey',
