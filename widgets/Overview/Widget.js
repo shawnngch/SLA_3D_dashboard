@@ -39,6 +39,9 @@ define([
       baseClass: 'jimu-widget-overview',
       _config: null,
       timelineDates: [],
+      LEChart: null,
+      TMChart: null,
+      LAChart: null,
 
       postCreate: function () {
         this._loadSlider();
@@ -61,8 +64,8 @@ define([
       _loadSlider: function () {
 
         for (var i = 0; i < window.PMS.length; i++) {
-          if (this.timelineDates.indexOf(window.PMS[i].Timeline) == -1) {
-            this.timelineDates.push(window.PMS[i].Timeline)
+          if (this.timelineDates.indexOf(window.PMS[i].TIMELINE) == -1) {
+            this.timelineDates.push(window.PMS[i].TIMELINE)
           }
         }
 
@@ -85,16 +88,18 @@ define([
         this.SnapshotDate.innerHTML = new Date(this.slider.get("value")).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
         window.timeline = new Date(this.slider.get("value"))
 
-        var LeaseExpiryChart = this.LeaseExpiryChart;
-        var LeasingActivityChart = this.LeasingActivityChart;
-        var TenantMixChart = this.TenantMixChart;
-
         //LeasingActivityChart Variable
         var newLease = 0, renewal = 0;
-        function findWithAttr(array, attr, value) {
+        function findWithAttr(array, attr, value, attr2, value2) {
           for (var i = 0; i < array.length; i += 1) {
-            if (array[i][attr] === value) {
-              return i;
+            if (!attr2 && !value2) {
+              if (array[i][attr] === value) {
+                return i;
+              }
+            } else {
+              if (array[i][attr] === value && array[i][attr2] === value2) {
+                return i;
+              }
             }
           }
           return -1;
@@ -111,30 +116,31 @@ define([
         //Data based on filter
         var IDTA_filtered = [], tenancy_filtered = [], PMS_filtered = []
         var filterInput_TA = []
+        var tenancyIndice = []
 
         if (PropVal.length == 0 && ClusterVal.length == 0) {
-          PMS_filtered = window.PMS.filter(el => el.Timeline == SliderVal);
-          IDTA_filtered = window.IDTA.filter(el => el.Timeline == SliderVal);
-          tenancy_filtered = window.tenancy.filter(el => el.Timeline == SliderVal);
+          PMS_filtered = window.PMS.filter(el => el.TIMELINE == SliderVal);
+          IDTA_filtered = window.IDTA.filter(el => el.TIMELINE == SliderVal);
+          tenancy_filtered = window.tenancy.filter(el => el.TIMELINE == SliderVal);
         } else {
           for (var i = 0; i < tenancy0.length; i++) {
             if (ClusterVal.indexOf(tenancy0[i].Classification_of_Cluster_in_Ta) != -1) {
-              if (tenancy0[i].Timeline == SliderVal) {
+              if (tenancy0[i].TIMELINE == SliderVal) {
                 filterInput_TA.push(tenancy0[i].TA_Account)
                 // tenancy_filtered.push(tenancy0[i])
               }
             }
           }
           for (var i = 0; i < IDTA0.length; i++) {
-            if ( filterInput_TA.indexOf(IDTA0[i].TA_Account) != -1 || PropVal.indexOf(IDTA0[i].Property_ID) != -1) {
-              if (IDTA0[i].Timeline == SliderVal) {
+            if (filterInput_TA.indexOf(IDTA0[i].TA_Account) != -1 || PropVal.indexOf(IDTA0[i].Property_ID) != -1) {
+              if (IDTA0[i].TIMELINE == SliderVal) {
                 IDTA_filtered.push(IDTA0[i])
               }
             }
           }
           for (var i = 0; i < IDTA_filtered.length; i++) {
-            var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA_filtered[i].Property_ID, "Timeline", SliderVal)
-            var tenancyIndex = findWithAttr(tenancy0, "TA_ACCOUNT", IDTA_filtered[i].TA_ACCOUNT, "Timeline", SliderVal)
+            var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA_filtered[i].Property_ID, "TIMELINE", SliderVal)
+            var tenancyIndex = findWithAttr(tenancy0, "TA_ACCOUNT", IDTA_filtered[i].TA_ACCOUNT, "TIMELINE", SliderVal)
             if (PMSindex != -1) {
               PMS_filtered.push(PMS0[PMSindex])
             }
@@ -146,11 +152,13 @@ define([
         }
         //----
 
+        // var refDate = (SliderVal == Math.max.apply(null, this.timelineDates)) ? new Date() : SliderVal;
+        
         for (var i = 0; i < PMS_filtered.length; i++) {
-          if (PMS_filtered[i].Timeline == this.slider.get("value")) {
+          if (PMS_filtered[i].TIMELINE == this.slider.get("value")) {
             if (PMS_filtered[i].MODE_OF_OCCUPATION != "TA") {
-              marketable += (PMS_filtered[i].Marketable_Unmarketable == "Marketable") ? 1 : 0;
-              unmarketable += (PMS_filtered[i].Marketable_Unmarketable == "Unmarketable") ? 1 : 0;
+              marketable += (PMS_filtered[i].MARKETABLE_UNMARKETABLE == "Marketable") ? 1 : 0;
+              unmarketable += (PMS_filtered[i].MARKETABLE_UNMARKETABLE == "Unmarketable") ? 1 : 0;
             } else {
               OccupiedProperties += 1;
             }
@@ -158,25 +166,31 @@ define([
             //IDTA-------------------------------------------
             var propertyID = PMS_filtered[i].PROPERTY_ID;
 
-            var IDTAindex = findWithAttr(IDTA_filtered, "Property_ID", propertyID);
-            if (IDTAindex === -1) { continue; }
+            var IDTAindex = findWithAttr(IDTA_filtered, "PROPERTY_ID", propertyID);
+            if (IDTAindex === -1) continue;
+            var TA_Account = IDTA_filtered[IDTAindex].TA_ACCOUNT
+            var tenancyIndex = findWithAttr(tenancy_filtered, "TA_ACCOUNT", TA_Account);
+            if (tenancyIndex === -1) continue;
 
-            var TA_Account = IDTA_filtered[IDTAindex].TA_Account
-            var tenancyIndex = findWithAttr(tenancy, "TA_Account", TA_Account);
-            if (tenancyIndex === -1) { 
-              continue; }
+            //Remove repeated tenancyIndex
+            // if (tenancyIndice.indexOf(tenancyIndex) === -1) {
+            //   tenancyIndice.push(tenancyIndex)
+            // } else continue;
 
-            var PMSstartDate = PMS_filtered[i].START_DATE;
-            var tenancyStartDate = tenancy[tenancyIndex].ExistingTAStartDate;
-            if (PMSstartDate == tenancyStartDate) {
-              newLease += 1;
-            } else {
-              renewal += 1;
-            }
+            // if (tenancy_filtered[tenancyIndex].EXISTING_TA_EXPIRY_DATE  >= refDate) {
+              var PMSstartDate = PMS_filtered[i].START_DATE;
+              var tenancyStartDate = tenancy_filtered[tenancyIndex].EXISTING_TA_START_DATE;
+              if (PMSstartDate == tenancyStartDate) {
+                newLease += 1;
+              } else {
+                renewal += 1;
+              }
+
+            // }
 
           }
         }
-        var rate = (OccupiedProperties / (PMS_filtered.length)) * 100;
+        var rate = (OccupiedProperties / (totalProperties)) * 100;
         this.OccupancyRate.textContent = "" + rate.toFixed(2).toString() + "%";
         this.propOccupied.textContent = OccupiedProperties;
         this.totalPropertiesManaged.textContent = totalProperties;
@@ -185,7 +199,6 @@ define([
 
         //tenancy-------------------------------------------------------------------------------------------------------------------
 
-        var refDate = (SliderVal == Math.max.apply(null, this.timelineDates)) ? new Date() : SliderVal;
         var grossMonthlyRentalRevenue = 0, noOfLeases = 0;
         var expiryPortfolio = { year: [], count: [], sortedYear: [], sortedCount: [] }
         var tenancyMix = { type: [], count: [] }
@@ -197,11 +210,12 @@ define([
         }
 
         for (var i = 0; i < tenancy_filtered.length; i++) {
-          grossMonthlyRentalRevenue += (tenancy_filtered[i].Monthly_rental == null) ? 0 : tenancy_filtered[i].Monthly_rental;
-          if (tenancy_filtered[i].ExistingTAStartDate <= refDate && tenancy_filtered[i].ExistingTAExpiryDate >= refDate) {
+          grossMonthlyRentalRevenue += (tenancy_filtered[i].MONTHLY_RENTAL == null) ? 0 : tenancy_filtered[i].MONTHLY_RENTAL;
+          var eStart = new Date(tenancy_filtered[i].EXISTING_TA_START_DATE), eExpiry = new Date(tenancy_filtered[i].EXISTING_TA_EXPIRY_DATE)
+          // if (eStart <= refDate && eExpiry >= refDate) {
             noOfLeases += 1;
-            var year0 = new Date(tenancy_filtered[i].ExistingTAExpiryDate).getFullYear();
-            var type0 = tenancy_filtered[i].Broad_classification_of_use;
+            var year0 = new Date(tenancy_filtered[i].EXISTING_TA_EXPIRY_DATE).getFullYear();
+            var type0 = tenancy_filtered[i].BROAD_CLASSIFICATION;
             if (expiryPortfolio.year.includes(year0)) {
               var expiryIndex = expiryPortfolio.year.indexOf(year0);
               expiryPortfolio.count[expiryIndex] += 1;
@@ -217,7 +231,10 @@ define([
               tenancyMix.type.push(type0);
               tenancyMix.count.push(1);
             }
-          }
+          // } else {
+          //   console.log(tenancy_filtered[i])
+          //   // console.log(eStart +" <= "+ refDate+" && "+eExpiry+" >= "+refDate)
+          // }
         }
 
         // //Arrange expiryPortfolio
@@ -233,7 +250,12 @@ define([
         this.grossMonthlyRentalRevenue.textContent = "$" + numberWithCommas(grossMonthlyRentalRevenue);
         this.noOfLeases.textContent = noOfLeases;
 
-        var LEChart = new Chart(LeaseExpiryChart, {
+        if (this.LEChart != null) {
+          this.LEChart.destroy()
+          this.TMChart.destroy()
+          this.LAChart.destroy()
+        }
+        this.LEChart = new Chart(this.LeaseExpiryChart, {
           type: 'bar',
           data: {
             labels: expiryPortfolio.sortedYear,
@@ -265,7 +287,7 @@ define([
             }]
           },
           options: {
-            'onClick' : (evt, item) => {
+            'onClick': (evt, item) => {
               console.log(item[0]['_model'].label)
             },
             plugins: {
@@ -295,7 +317,7 @@ define([
             }
           }
         });
-        var TMChart = new Chart(TenantMixChart, {
+        this.TMChart = new Chart(this.TenantMixChart, {
           type: 'horizontalBar',
           data: {
             labels: tenancyMix.type,
@@ -327,7 +349,7 @@ define([
             }]
           },
           options: {
-            'onClick' : (evt, item) => {
+            'onClick': (evt, item) => {
               console.log(item[0]['_model'].label)
             },
             plugins: {
@@ -356,7 +378,7 @@ define([
             }
           }
         });
-        var LAChart = new Chart(LeasingActivityChart, {
+        this.LAChart = new Chart(this.LeasingActivityChart, {
           type: 'pie',
           data: {
             datasets: [{
@@ -381,7 +403,7 @@ define([
             ]
           },
           options: {
-            'onClick' : (evt, item) => {
+            'onClick': (evt, item) => {
               console.log(item[0]['_model'].label)
             },
             plugins: {
@@ -400,6 +422,7 @@ define([
             maintainAspectRatio: false
           }
         });
+
 
       },
 

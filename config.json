@@ -245,12 +245,12 @@
       "bottom": 24,
       "left": 55
     },
-    "itemId0": "c2966e83c5da4da5a715fa0c61273f26",
-    "itemId": "55f036fb0d6645f383241f55051f91c3",
+    "itemId": "e73f6946071943d9ac6f1da2e1f0b9f2",
+    "itemId0": "55f036fb0d6645f383241f55051f91c3",
     "mapOptions": {},
     "id": "map",
-    "portalUrl0": "http://esrn1609.esrisa.com/portal",
-    "portalUrl": "https://demosg.maps.arcgis.com"
+    "portalUrl": "http://esrn1609.esrisa.com/portal",
+    "portalUrl0": "https://demosg.maps.arcgis.com"
   },
   "widgetPool": {
     "panel": {

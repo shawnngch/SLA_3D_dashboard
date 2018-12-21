@@ -42,6 +42,9 @@ define([
       TADT: null,
       DataTableLoaded: false,
       FilterValues: null,
+      // Chart6M: null,
+      ChartR: null,
+      ChartN: null,
 
       postCreate: function () {
         this.inherited(arguments);
@@ -59,7 +62,7 @@ define([
       onOpen: function () {
         window.lastwidget.setWidget("Leasing");
         //Show first tab for Expiry Chart
-        $("#Exp6M").click()
+        $("#ExpGFA").click()
       },
 
       _onFilterChanged: function () {
@@ -67,7 +70,6 @@ define([
 
         var tenantvalues = $('#TenantFilter').dropdown('get value');
         console.log(tenantvalues)
-        var NLAChart = this.NLAChart;
         function findWithAttr(array, attr, value, attr2, value2) {
           for (var i = 0; i < array.length; i += 1) {
             if (!attr2 && !value2) {
@@ -90,191 +92,310 @@ define([
 
         for (var i = 0; i < tenancy0.length; i++) {
           // if (tenancy0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
-          if (tenantvalues.indexOf(tenancy0[i].TA_Account) != -1 || tenantvalues.length == 0) {
-            if (tenancy0[i].Timeline == window.maxTimeline) tenancy.push(tenancy0[i])
+          if (tenantvalues.indexOf(tenancy0[i].TA_ACCOUNT) != -1 || tenantvalues.length == 0) {
+            if (tenancy0[i].TIMELINE == window.maxTimeline) tenancy.push(tenancy0[i])
           }
         }
         for (var i = 0; i < IDTA0.length; i++) {
           // if (IDTA0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
-          if (tenantvalues.indexOf(IDTA0[i].TA_Account) != -1 || tenantvalues.length == 0) {
-            if (IDTA0[i].Timeline == window.maxTimeline) IDTA.push(IDTA0[i])
+          if (tenantvalues.indexOf(IDTA0[i].TA_ACCOUNT) != -1 || tenantvalues.length == 0) {
+            if (IDTA0[i].TIMELINE == window.maxTimeline) IDTA.push(IDTA0[i])
           }
         }
         for (var i = 0; i < IDTA.length; i++) {
-          var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA[i].Property_ID, "Timeline", window.maxTimeline)
-          // console.log(IDTA[i].Property_ID + " " + PMSindex)
+          var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA[i].PROPERTY_ID, "TIMELINE", window.maxTimeline)
           if (PMSindex != -1) {
             PMS.push(PMS0[PMSindex])
           }
         }
         for (var i = 0; i < subtenants0.length; i++) {
-          if (tenantvalues.indexOf(subtenants0[i].TA_Account) != -1 || tenantvalues.length == 0) {
+          if (tenantvalues.indexOf(subtenants0[i].TA_ACCOUNT) != -1 || tenantvalues.length == 0) {
             subtenants.push(subtenants0[i])
           }
         }
 
         //Get Date for NLA Chart
-        var objArr = { year: [], NLA: [] }
+        var chartData = { year: [], NLA: [], Rent: [] }
         for (var i = 0; i < PMS.length; i++) {
           if (PMS[i].END_DATE != null && new Date(PMS[i].START_DATE) < new Date()) {
             var EndDate = new Date(PMS[i].END_DATE)
             var endYear = EndDate.getFullYear().toString()
-            var yearIndex = objArr.year.indexOf(endYear)
+            var yearIndex = chartData.year.indexOf(endYear)
 
-            var FloorArea = PMS[i].TOTAL_PROP_BLDG_GFA_SQM / 1000
+            var FloorArea = PMS[i].TOTAL_PROP_BLDG_GFA_SQM // 1000
+            var Rent = PMS[i].ASKING_RENT // 1000
             if (yearIndex == -1) {
-              if (objArr.year.length == 0) {
-                objArr.year.push(endYear)
-                objArr.NLA.push(FloorArea)
+              if (chartData.year.length == 0) {
+                chartData.year.push(endYear)
+                chartData.NLA.push(FloorArea)
+                chartData.Rent.push(Rent)
                 continue
               }
 
-              for (var j = 0; j < objArr.year.length; j++) {
-                if (endYear < objArr.year[j]) {
-                  objArr.year.splice(j, 0, endYear)
-                  objArr.NLA.splice(j, 0, FloorArea)
+              for (var j = 0; j < chartData.year.length; j++) {
+                if (endYear < chartData.year[j]) {
+                  chartData.year.splice(j, 0, endYear)
+                  chartData.NLA.splice(j, 0, FloorArea)
+                  chartData.Rent.splice(j, 0, Rent)
                   break
                 }
-                if (j == objArr.year.length - 1) {
-                  objArr.year.push(endYear)
-                  objArr.NLA.push(FloorArea)
+                if (j == chartData.year.length - 1) {
+                  chartData.year.push(endYear)
+                  chartData.NLA.push(FloorArea)
+                  chartData.Rent.push(Rent)
                   break
                 }
               }
             } else {
-              objArr.NLA[yearIndex] += (FloorArea)
+              chartData.NLA[yearIndex] += (FloorArea)
+              chartData.Rent[yearIndex] += (Rent)
             }
 
           }
         }
         var maxNLA = 0
-        for (i = 0; i < objArr.NLA.length; i++) {
-          objArr.NLA[i] = objArr.NLA[i].toFixed(2);
-          if (parseFloat(objArr.NLA[i]) > maxNLA) maxNLA = objArr.NLA[i]
+        for (i = 0; i < chartData.NLA.length; i++) {
+          chartData.NLA[i] = chartData.NLA[i].toFixed(2);
+          if (parseFloat(chartData.NLA[i]) > maxNLA) maxNLA = chartData.NLA[i]
         }
         maxNLA = Math.round(Math.ceil(maxNLA / 5) * 5 * 1.1)
 
-        var NChart = new Chart(NLAChart, {
+        if (this.ChartN != null) {
+          this.ChartN.destroy()
+          this.ChartR.destroy()
+          // this.Chart6M.destroy()
+        }
+        this.ChartN = new Chart(this.ChartNLA, {
           type: 'bar',
           data: {
-            labels: objArr.year,
+            labels: chartData.year,
             datasets: [{
-              label: 'Current Rent',
-              yAxisID: 'Current Rent',
-              data: [90, 250, 300, 250, 300, 97],
-              backgroundColor: 'rgba(255, 99, 132, 0.2)',
-              borderColor: 'rgba(255,99,132,1)',
-              borderWidth: 2,
-              xAxisID: "x-axis1",
+              label: 'NLA',
+              data: chartData.NLA,
+              // yAxisID: 'Distict Count',
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1,
               datalabels: {
-                color: 'rgba(255,99,132,1)',
                 anchor: 'end',
                 align: 'end'
               }
-            }, {
-              label: 'NLA',
-              yAxisID: 'NLA',
-              data: objArr.NLA,
-              backgroundColor: 'rgba(54, 162, 235, 0.2)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              // type: 'line',
-              borderWidth: 1,
-              xAxisID: "x-axis1",
-              datalabels: {
-
-                color: 'rgba(54, 162, 235, 1)'
-              }
-            }],
+            }]
           },
           options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            // aspectRatio:3,
-            scales: {
-              xAxes: [{
-                stacked: true,
-                id: "x-axis1",
-                // barThickness: 70,
-              }],
-              yAxes: [{
-                id: 'Current Rent',
-                type: 'linear',
-                position: 'left',
-                scaleLabel: {
-                  display: true,
-                  labelString: "Current Rent ('000)"
-                },
-                // ticks: {
-                //   max: 330,
-                // }
-              }, {
-                id: 'NLA',
-                type: 'linear',
-                position: 'right',
-                scaleLabel: {
-                  display: true,
-                  labelString: "NLA ('000)"
-                },
-                // ticks: {
-                //   max: maxNLA,
-                // }
-              }]
-            },
-            legend: {
-              display: true
+            'onClick': (evt, item) => {
+              if (item.length > 0)
+                console.log(item[0]['_model'].label)
             },
             plugins: {
               datalabels: {
-                // color: 'rgba(54, 162, 235, 1)',
                 color: 'grey',
                 display: function (context) {
                   return context.dataset.data[context.dataIndex];
                 },
-                // font: {
-                //   weight: 'bold'
-                // },
+                font: {
+                  weight: 'bold'
+                },
+                formatter: Math.round
+              }
+            },
+            //Chart Size
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+            },
+            legend: {
+              display: false
+            }
+          }
+        });
+        this.ChartR = new Chart(this.ChartRent, {
+          type: 'bar',
+          data: {
+            labels: chartData.year,
+            datasets: [{
+              label: 'Rent',
+              data: chartData.Rent,
+              // yAxisID: 'Distict Count',
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1,
+              datalabels: {
                 anchor: 'end',
                 align: 'end'
               }
-            },
+            }]
           },
-          scrollY: '100%',
+          options: {
+            'onClick': (evt, item) => {
+              if (item.length > 0)
+                console.log(item[0]['_model'].label)
+            },
+            plugins: {
+              datalabels: {
+                color: 'grey',
+                display: function (context) {
+                  return context.dataset.data[context.dataIndex];
+                },
+                font: {
+                  weight: 'bold'
+                },
+                formatter: Math.round
+              }
+            },
+            //Chart Size
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+            },
+            legend: {
+              display: false
+            }
+          }
         });
 
         //Get data for expiryTable
         var totalExpiring = 0, allocationNo = { modeOfAllocation: [], qty: [] }, TATableData = [];
         const tenancyAttributes = Object.keys(tenancy[0])
         for (var i = 0; i < tenancy.length; i++) {
-          if (tenancy[i].ExistingTAExpiryDate > new Date()) {
-            var MOA = tenancy[i].Mode_of_allocation
-            var modeIndex = allocationNo.modeOfAllocation.indexOf(MOA)
+          // if (tenancy[i].EXISTING_TA_EXPIRY_DATE > new Date()) {
+            var modeIndex = allocationNo.modeOfAllocation.indexOf(tenancy[i].MODE_OF_ALLOCATION)
             totalExpiring += 1
             if (modeIndex == -1) {
-              allocationNo.modeOfAllocation.push(tenancy[i].Mode_of_allocation)
+              allocationNo.modeOfAllocation.push(tenancy[i].MODE_OF_ALLOCATION)
               allocationNo.qty.push(1)
             } else {
               allocationNo.qty[modeIndex] += 1
             }
-          }
+          // }
+
+          tenancy[i].EXISTING_TA_START_DATE = window.toShortDate(tenancy[i].EXISTING_TA_START_DATE)
+          tenancy[i].EXISTING_TA_EXPIRY_DATE = window.toShortDate(tenancy[i].EXISTING_TA_EXPIRY_DATE)
+          tenancy[i].COMMITTED_TENURE_END_DATE = window.toShortDate(tenancy[i].COMMITTED_TENURE_END_DATE)
           const tenancyRowArray = Object.values(tenancy[i])
           TATableData.push(tenancyRowArray)
         }
 
+        // this.Chart6M = new Chart(this.Chart6Month, {
+        //   type: 'bar',
+        //   data: {
+        //     labels: allocationNo.modeOfAllocation,
+        //     datasets: [{
+        //       label: '6Month',
+        //       data: allocationNo.qty,
+        //       // yAxisID: 'Distict Count',
+        //       backgroundColor: [
+        //         'rgba(255, 99, 132, 0.2)',
+        //         'rgba(54, 162, 235, 0.2)',
+        //         'rgba(255, 206, 86, 0.2)',
+        //         'rgba(75, 192, 192, 0.2)',
+        //         'rgba(153, 102, 255, 0.2)',
+        //         'rgba(255, 159, 64, 0.2)'
+        //       ],
+        //       borderColor: [
+        //         'rgba(255,99,132,1)',
+        //         'rgba(54, 162, 235, 1)',
+        //         'rgba(255, 206, 86, 1)',
+        //         'rgba(75, 192, 192, 1)',
+        //         'rgba(153, 102, 255, 1)',
+        //         'rgba(255, 159, 64, 1)'
+        //       ],
+        //       borderWidth: 1,
+        //       datalabels: {
+        //         anchor: 'end',
+        //         align: 'end'
+        //       }
+        //     }]
+        //   },
+        //   options: {
+        //     'onClick': (evt, item) => {
+        //       if (item.length > 0)
+        //         console.log(item[0]['_model'].label)
+        //     },
+        //     plugins: {
+        //       datalabels: {
+        //         color: 'grey',
+        //         display: function (context) {
+        //           return context.dataset.data[context.dataIndex];
+        //         },
+        //         font: {
+        //           weight: 'bold'
+        //         },
+        //         formatter: Math.round
+        //       }
+        //     },
+        //     //Chart Size
+        //     responsive: true,
+        //     maintainAspectRatio: false,
+        //     scales: {
+        //       yAxes: [{
+        //         ticks: {
+        //           beginAtZero: true
+        //         }
+        //       }]
+        //     },
+        //     legend: {
+        //       display: false
+        //     }
+        //   }
+        // });
 
         //Set data for expiryTable
         this.expiringTable.innerHTML = ""
         for (var i = 0; i < allocationNo.modeOfAllocation.length; i++) {
           var rowHTML = "<tr>"
           if (i == 0) {
-            rowHTML += "<td rowspan=" + allocationNo.modeOfAllocation.length + "><strong>" + totalExpiring + "</strong></td>"
+            rowHTML += "<td rowspan=" + allocationNo.modeOfAllocation.length + ">Total<br><strong>" + totalExpiring + "</strong></td>"
           }
           rowHTML += "<td>" + allocationNo.modeOfAllocation[i] + "</td><td>" + allocationNo.qty[i] + "</td></tr>"
           this.expiringTable.innerHTML += rowHTML
         }
 
         var colNames = []
-        for (var i = 0; i < tenancyAttributes.length; i++) {
-          colNames.push({ title: tenancyAttributes[i] })
+        // for (var i = 0; i < tenancyAttributes.length; i++) {
+        //   colNames.push({ title: tenancyAttributes[i] })
+        // }
+        var col = ['','','','TA Account','','','','Tenant Name','Tenancy Status','Property','','Specific Usage','','','','GFA(m²)','','','Monthly Rental','','Rate(PSF)','','TA Start Date','TA End Date','Tenure End Date','','','']
+        for (var i = 0; i < col.length; i++) {
+          colNames.push({ title: col[i] })
         }
 
 
@@ -299,11 +420,63 @@ define([
                   visible: false
                 },
                 {
-                  targets: [3],
+                  targets: [4],
+                  visible: false
+                },
+                {
+                  targets: [5],
+                  visible: false
+                },
+                {
+                  targets: [6],
+                  visible: false
+                },
+                {
+                  targets: [10],
                   visible: false
                 },
                 {
                   targets: [12],
+                  visible: false
+                },
+                {
+                  targets: [13],
+                  visible: false
+                },
+                {
+                  targets: [14],
+                  visible: false
+                },
+                {
+                  targets: [16],
+                  visible: false
+                },
+                {
+                  targets: [17],
+                  visible: false
+                },
+                {
+                  targets: [19],
+                  visible: false
+                },
+                {
+                  targets: [21],
+                  visible: false
+                },
+                {
+                  targets: [25],
+                  visible: false
+                },
+                {
+                  targets: [26],
+                  visible: false
+                },
+                {
+                  targets: [27],
+                  visible: false
+                },
+                {
+                  targets: [28],
                   visible: false
                 }
               ],
@@ -357,13 +530,13 @@ define([
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tabcontent");
         for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
+          tabcontent[i].style.display = "none";
         }
         tablinks = document.getElementsByClassName("tablinks");
         for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
+          tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
-        document.getElementById("tab"+evt.currentTarget.id).style.display = "block";
+        document.getElementById("tab" + evt.currentTarget.id).style.display = "block";
         evt.currentTarget.className += " active";
 
       },

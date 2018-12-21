@@ -59,8 +59,20 @@ define([
       searchDijit: null,
       _config: null,
       lastwidget0: null,
+      subtenantsLayerTitle: null,
+      texturedLayerTitle: null,
+      untexturedLayerTitle: null,
+      LayerTitle: {
+        'subtenants': null,
+        'textured': null,
+        'untextured': null,
+      },
 
       postCreate: function () {
+        window.toShortDate = function toShortDate(dateVal) {
+          var date0 = new Date(dateVal)
+          return (date0.getMonth() + 1) + "/" + date0.getDate() + "/" + date0.getFullYear();
+        }
       },
       startup: function () {
 
@@ -87,7 +99,7 @@ define([
           console.log("PMS");
           for (var i = 0; i < resultset.length; i++) {
             PMS.push(resultset[i].attributes);
-            if (Timeline.indexOf(resultset[i].attributes["Timeline"]) == -1) Timeline.push(resultset[i].attributes["Timeline"])
+            if (Timeline.indexOf(resultset[i].attributes["TIMELINE"]) == -1) Timeline.push(resultset[i].attributes["TIMELINE"])
           }
           window.PMS = PMS;
           window.maxTimeline = Math.max.apply(null, Timeline);
@@ -141,39 +153,31 @@ define([
           return
         }).then(function () {
           //Load all geometry layers----------------------------------------------------------------------------
-          var Ortho = new MapImageLayer({
-            url: "https://esrn1609.esrisa.com/server/rest/services/SLA/Tanglin_Ortho/MapServer",
-          })
-          // var DTM = new ElevationLayer({
-          //   url0: "https://esrn1609.esrisa.com/server/rest/services/DTM/MapServer",
-          //   url: "https://esrn1609.esrisa.com/server/rest/services/SLA/sladtm01m/ImageServer",
-          // })
           //subtenant
           var Unit_Scene = new SceneLayer({
-            url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Buildings_Tanglin_Subtenant/SceneServer",
+            url: that._config.GeometryLayers.subtenants.sceneLayer.url,
             popupEnabled: true,
             outFields: ["*"],
             visible: false
           })
-          //property
-          var Buildings_Scene = new SceneLayer({
-            url0: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/SLA_Buildings_New/SceneServer",
-            url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_Bldgs/SceneServer",
+          // that.LayerTitle.subtenants = Unit_Scene.title
+          //Textured Buildings
+          var Buildings_Textured_Scene = new SceneLayer({
+            url: that._config.GeometryLayers.textured.sceneLayer.url,
             popupEnabled: true,
             outFields: ["*"],
             visible: false
           })
-          //LOD2
-          var LOD2 = new SceneLayer({
-            url0: "https://tiles.arcgis.com/tiles/GrCObcYo81O3Ymu8/arcgis/rest/services/Textured_LOD2/SceneServer",
-            url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/LOD2_Textured/SceneServer",
+          // that.LayerTitle.textured = Buildings_Textured_Scene.title
+          //Untextured Buildings
+          var Buildings_Untextured_Scene = new SceneLayer({
+            url: that._config.GeometryLayers.untextured.sceneLayer.url,
             popupEnabled: true,
             outFields: ["*"],
-            visible: true
+            visible: false
           })
-          // that.sceneView.map.addMany([Ortho,Unit_Scene, Buildings_Scene, LOD2])
-          that.sceneView.map.addMany([Unit_Scene, Buildings_Scene, LOD2])
-          // that.sceneView.map.ground.layers.add(DTM);
+          // that.LayerTitle.untextured = Buildings_Untextured_Scene.title
+          that.sceneView.map.addMany([Unit_Scene, Buildings_Untextured_Scene, Buildings_Textured_Scene])
 
 
           // Actual work after loading all data
@@ -240,6 +244,7 @@ define([
         this.own(on(this.BuildingFilter, 'change', lang.hitch(this, this._onFilterChanged)));
         this.own(on(this.FloorFilter, 'change', lang.hitch(this, this._onFilterChanged)));
         this.own(on(this.ViewFilter, 'change', lang.hitch(this, this._onFilterChanged)));
+        this.own(on(this.ClearFilter, 'click', lang.hitch(this, this._ClearFilter)));
       },
       _populateFilterVal: function () {
         console.log("Filter0 _populateFilterVal")
@@ -278,8 +283,8 @@ define([
         this.TenantFilter.innerHTML = "<option></option>"
         for (var i = 0; i < window.tenancy.length; i++) {
           if (tenancyList.indexOf(window.tenancy[i].TA_Account) == -1) {
-            this.TenantFilter.innerHTML += "<option value='" + window.tenancy[i].TA_Account + "'>" + window.tenancy[i].TA_Account + " - " + window.tenancy[i].Licensee_Tenant_Name + "</option>"
-            tenancyList.push(window.tenancy[i].TA_Account)
+            this.TenantFilter.innerHTML += "<option value='" + window.tenancy[i].TA_ACCOUNT + "'>" + window.tenancy[i].TA_ACCOUNT + " - " + window.tenancy[i].LICENSEE_TENANT + "</option>"
+            tenancyList.push(window.tenancy[i].TA_ACCOUNT)
           }
         }
         this.PropertyFilter.innerHTML = "<option></option>"
@@ -299,9 +304,19 @@ define([
           this.FloorFilter.innerHTML += "<option value='" + window.Floor[i] + "'>" + window.Floor[i] + "</option>"
         }
         this.ViewFilter.innerHTML = ""
-        var viewcount = (this.lastwidget0 == "Subtenant") ? 5 : 3
-        for (var i = 0; i < viewcount; i++) {
-          this.ViewFilter.innerHTML += "<option value='" + this._config.ViewBy[i].Value + "'>" + this._config.ViewBy[i].Display + "</option>"
+        // var viewcount = (this.lastwidget0 == "Subtenant") ? 6 : 4
+        // for (var i = 0; i < viewcount; i++) {
+        //   this.ViewFilter.innerHTML += "<option value='" + this._config.ViewBy[i].Value + "'>" + this._config.ViewBy[i].Display + "</option>"
+        // }
+
+        var ViewVals
+        if (this.lastwidget0 == "Subtenant") {
+          ViewVals = this._config.GeometryLayers.subtenants.ViewVals
+        } else {
+          ViewVals = this._config.GeometryLayers.untextured.ViewVals
+        }
+        for (var i = 0; i < ViewVals.length; i++) {
+          this.ViewFilter.innerHTML += "<option value='" + this._config.ViewBy[ViewVals[i]].Value + "'>" + this._config.ViewBy[ViewVals[i]].Display + "</option>"
         }
 
         // Values retrieved from window.filterlistener.filterValues adds [']
@@ -324,7 +339,7 @@ define([
           this.TenantFilterContainer.hidden = false
           this.BuildingFilterContainer.hidden = true
           this.FloorFilterContainer.hidden = true
-          $('#TenantFilter').dropdown('set value', window.filterlistener.filterValues.Tenant);
+          // $('#TenantFilter').dropdown('set value', window.filterlistener.filterValues.Tenant);
         } else if (this.lastwidget0 == "Subtenant") {
           this.TenantFilterContainer.hidden = false
           this.BuildingFilterContainer.hidden = false
@@ -337,13 +352,14 @@ define([
         $('#ClusterFilter').dropdown('set value', window.filterlistener.filterValues ? window.filterlistener.filterValues.Cluster : '');
 
         //set Default View when widget opened
-        if (this.lastwidget0 == "Overview" || this.lastwidget0 == "Marketing") {
-          this.ViewFilter.value = "Occupancy"
-        } else if (this.lastwidget0 == "Leasing") {
-          this.ViewFilter.value = "SLA_DeptInCharge"
-        } else if (this.lastwidget0 == "Subtenant") {
-          this.ViewFilter.value = "Occupancy"
-        }
+        this.ViewFilter.value = this._config.defaultView[this.lastwidget0]
+        // if (this.lastwidget0 == "Overview" || this.lastwidget0 == "Marketing") {
+        //   this.ViewFilter.value = "Occupancy"
+        // } else if (this.lastwidget0 == "Leasing") {
+        //   this.ViewFilter.value = "SLA_DeptInCharge"
+        // } else if (this.lastwidget0 == "Subtenant") {
+        //   this.ViewFilter.value = "Tenant Mix"
+        // }
         this._onFilterChanged()
 
       },
@@ -414,7 +430,7 @@ define([
             //if(!(/^\d+$/.test(value)))"'" + value + "'"
             if (value != "")
               if (isNumber(value))
-              Q.push(query + "'" + value + "'")
+                Q.push(query + "'" + value + "'")
               else
                 Q.push(query + "'" + value + "'")
           }
@@ -424,9 +440,9 @@ define([
 
 
         var ClusterQuery = arrayQuery(ClusterVal, "CLASSIFICATION_OF_CLUSTER = ")
-        var PropQuery = arrayQuery(PropVal, "PROPERTY_ID= ")	
-        var TimelineQuery = "STATUS_OF_TENANCY = 'Master Tenant'"
-        // var TimelineQuery = "TIMELINE > '7/29/2019'"
+        var PropQuery = arrayQuery(PropVal, "PROPERTY_ID= ")
+        // var strMaxTimeline = window.toShortDate(window.maxTimeline)
+        // var TimelineQuery = arrayQuery(strMaxTimeline, "TIMELINE = ")//"TIMELINE > '7/29/2018'"
         if (this.lastwidget0 == "Subtenant") {
           var BldgQuery = arrayQuery(BuildingVal, "BLOCK_NO= ")
           var floorQuery = arrayQuery(FloorVal, "STOREY= ")
@@ -438,8 +454,15 @@ define([
           var ExpiryQuery
           if (!(target_occupation_date == null || target_occupation_date == "")) {
             var date = (new Date(target_occupation_date));
-            var strdate = (date.getMonth() + 1) + '/' + date.getDate() + '/' + (date.getFullYear()-1) +' 12:00:00 AM'
-            ExpiryQuery = arrayQuery(strdate, "EXISTING_TA_EXPIRY_DATE <  ")
+            if (isNaN(date.getTime())) {  // d.valueOf() could also work
+              // date is not valid
+              ExpiryQuery = null
+            } else {
+              // date is valid
+              var strdate = (date.getMonth() + 1) + '/' + date.getDate() + '/' + (date.getFullYear()) //+' 12:00:00 AM'
+              // var strdate = (date.getFullYear())+'-'+(date.getMonth() + 1) + '-' + date.getDate()
+              ExpiryQuery = arrayQuery(strdate, "EXISTING_TA_EXPIRY_DATE >  ")
+            }
           } else {
             ExpiryQuery = null
           }
@@ -454,82 +477,80 @@ define([
           queryDef = [TenancyQuery, ClusterQuery, PropQuery].filter(Boolean).join(" OR ");
         } else if (this.lastwidget0 == "Marketing") {
           // queryDef = [[TenancyQuery, ClusterQuery, PropQuery].filter(Boolean).join(" OR "), ExpiryQuery].filter(Boolean).join(" AND ");
-          queryDef = [ExpiryQuery,TimelineQuery].filter(Boolean).join(" AND ");
+          // queryDef = [ExpiryQuery, TimelineQuery].filter(Boolean).join(" AND ");
+          queryDef = ExpiryQuery
         } else {
           queryDef = [ClusterQuery, PropQuery].filter(Boolean).join(" OR ");
         }
 
-        // update Graphical Layer
+        // ----------------------------------------------------------update Graphical Layer---------------------------------------------------------------
         var that = this
-        this.sceneView.map.layers.forEach(function (layer) {
-          if (ViewVal == "none") {
-            if (that.lastwidget0 == "Overview" || that.lastwidget0 == "Leasing" || that.lastwidget0 == "Marketing" || that.lastwidget0 == "") {
-              //turn on LOD2 only
-              if (layer.title == "LOD2 Textured") {
-                layer.visible = true;
-                layer.definitionExpression = queryDef;
-                // layer.when(function () {
-                //   view.extent = layer.fullExtent;
-                // });
-              } else if (layer.title == "Buildings Tanglin Subtenant" || layer.title == "Untextured Bldgs CopyFeature4") {
-                layer.visible = false;
-              }
-            } else if (that.lastwidget0 == "Subtenant") {
-              var viewIndex = findWithAttr(that._config.ViewBy, "Value", ViewVal)
-              var renderer = that._config.ViewBy[viewIndex].Renderer
-              if (layer.title == "Textured LOD2") {
-                layer.visible = false;
-              } else if (layer.title == "Buildings Tanglin Subtenant") {
-                layer.visible = true;
-                layer.definitionExpression = queryDef;
-                layer.renderer = renderer
-                layer.opacity = 0.8;
-                // layer.when(function () {
-                //   view.extent = layer.fullExtent;
-                // });
-                Untextured_Bldgs_CopyFeature4
-                // } else if (layer.title == "SLA Buildings New") {
-              } else if (layer.title == "Untextured Bldgs CopyFeature4") {
-                layer.visible = false;
-                layer.opacity = 0.1;
-              }
-            }
-          } else {
-            if (that.lastwidget0 == "Subtenant") {
-              if (layer.title == "Buildings Tanglin Subtenant - Buildings Tanglin New") {
-                var viewIndex = findWithAttr(that._config.ViewBy, "Value", ViewVal)
-                var renderer = that._config.ViewBy[viewIndex].Renderer
-                layer.definitionExpression = queryDef;
-                layer.renderer = renderer
-                layer.opacity = 0.7;
-                layer.visible = true;
-                // layer.when(function () {
-                //   that.sceneView.extent = layer.fullExtent;
-                // });
-              } else if (layer.title == "LOD2 Textured" || layer.title == "Untextured Bldgs CopyFeature4") {
-                layer.visible = false;
-              }
-            } else if (that.lastwidget0 == "Overview" || that.lastwidget0 == "Leasing" || that.lastwidget0 == "Marketing" || that.lastwidget0 == "") {
-              if (layer.title == "Untextured Bldgs CopyFeature4") {
-                var viewIndex = findWithAttr(that._config.ViewBy, "Value", ViewVal)
-                var renderer = that._config.ViewBy[viewIndex].Renderer
-                console.log(queryDef)
-                layer.definitionExpression = queryDef;
-                layer.renderer = renderer
-                layer.opacity = 0.5;
-                layer.visible = true;
-                // layer.when(function () {
-                //   that.sceneView.extent = layer.fullExtent;
-                // });
-              } else if (layer.title == "LOD2 Textured" || layer.title == "Buildings Tanglin Subtenant - Buildings Tanglin New") {
-                layer.visible = false;
-              }
-            }
+        this.LayerTitle.subtenants = this.sceneView.map.layers.items[2].title
+        this.LayerTitle.untextured = this.sceneView.map.layers.items[3].title
+        this.LayerTitle.textured = this.sceneView.map.layers.items[4].title
 
+        var template
+        this.sceneView.map.layers.forEach(function (layer) {
+          if (!(layer.title == "Tanglin Ortho" || layer.title == null)) {
+            if (ViewVal == "none") {
+              if (that.lastwidget0 == "Overview" || that.lastwidget0 == "Leasing" || that.lastwidget0 == "Marketing" || that.lastwidget0 == "") {
+
+                //turn on LOD2 only 
+                if (layer.title == that.LayerTitle.textured) {
+                  layer.visible = true;
+                  layer.popupTemplate = that._config.GeometryLayers.textured.sceneLayer.template;
+                  layer.definitionExpression = queryDef;
+                } else {
+                  layer.visible = false;
+                }
+              }
+            } else {
+              if (that.lastwidget0 == "Subtenant") {
+                if (layer.title == that.LayerTitle.subtenants) {
+                  var viewIndex = findWithAttr(that._config.ViewBy, "Value", ViewVal)
+                  var renderer = that._config.ViewBy[viewIndex].Renderer
+                  layer.definitionExpression = queryDef;
+                  layer.renderer = renderer
+                  layer.opacity = 0.7;
+                  layer.visible = true;
+                } else {
+                  layer.visible = false;
+                }
+              } else if (that.lastwidget0 == "Overview" || that.lastwidget0 == "Leasing" || that.lastwidget0 == "Marketing" || that.lastwidget0 == "") {
+                if (layer.title == that.LayerTitle.untextured) {
+                  var viewIndex = findWithAttr(that._config.ViewBy, "Value", ViewVal)
+                  var renderer = that._config.ViewBy[viewIndex].Renderer
+                  console.log(queryDef)
+                  layer.definitionExpression = queryDef;
+                  layer.renderer = renderer
+                  layer.opacity = 0.8;
+                  layer.visible = true;
+                  layer.popupEnabled = true;
+                  layer.popupTemplate = that._config.GeometryLayers.untextured.sceneLayer.template;
+                  if (that.lastwidget0 == "Marketing") {
+                    layer.popupEnabled = false;
+                  }
+                } else {
+                  layer.visible = false;
+                }
+              }
+
+            }
           }
         });
 
 
+      },
+
+      _ClearFilter: function () {
+        // console.log("_ClearFilter")
+        $('#TenantFilter').dropdown('clear');
+        $('#BuildingFilter').dropdown('clear');
+        $('#FloorFilter').dropdown('clear');
+        $('#PropertyFilter').dropdown('clear');
+        $('#ClusterFilter').dropdown('clear');
+        $('#ViewFilter').dropdown('set selected', 'none');
+        this._populateFilterVal()
       },
     });
   });

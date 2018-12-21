@@ -1,33 +1,37 @@
 <div class="container">
 	<div data-dojo-attach-point="filterNode" class="filter-node">
 		<div class="filter-container" data-dojo-attach-point="TenantFilterContainer" hidden=true>
-			Filter by Tenant:
+			<div class="filter-title">Filter by Tenant:</div> 
 			<select class="ui search selection dropdown" multiple="" id="TenantFilter" data-dojo-attach-point="TenantFilter">
 			</select>
 		</div>
 		<div class="filter-container">
-			Filter by Property:
+			<div class="filter-title">Filter by Property:</div>
 			<select class="filter ui selection dropdown" multiple="" id="PropertyFilter" data-dojo-attach-point="PropertyFilter">
 			</select>
 		</div>
 		<div class="filter-container">
-			Filter by Cluster:
+			<div class="filter-title">Filter by Cluster:</div>
 			<select class="filter ui selection dropdown" multiple="" id="ClusterFilter" data-dojo-attach-point="ClusterFilter">
 			</select>
 		</div>
 		<div class="filter-container" data-dojo-attach-point="BuildingFilterContainer" hidden=true>
-			Filter by Building:
+			<div class="filter-title">Filter by Building:</div>
 			<select class="filter ui selection dropdown" multiple="" id="BuildingFilter" data-dojo-attach-point="BuildingFilter">
 			</select>
 		</div>
 		<div class="filter-container" data-dojo-attach-point="FloorFilterContainer" hidden=true>
-			Filter by Floor:
+			<div class="filter-title">Filter by Floor:</div>  
 			<select class="filter ui selection dropdown" multiple="" id="FloorFilter" data-dojo-attach-point="FloorFilter">
 			</select>
 		</div>
 		<div class="filter-container">
-			View Buildings By:
+			<div class="filter-title">View Buildings By:</div>
 			<select class="filter ui selection dropdown" data-dojo-attach-point="ViewFilter">
+			</select>
+		</div>
+		<div class="clear-container">
+			<button type="button" class="ui button" data-dojo-attach-point="ClearFilter">Clear Filters</button>
 			</select>
 		</div>
 	</div>

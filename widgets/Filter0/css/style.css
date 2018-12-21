@@ -1,7 +1,7 @@
 .jimu-widget-filter0{
   min-height: 32px;
   background-color: lightgrey;
-  opacity:0.8;
+  opacity:0.95;
   width: 100%;
 }
 
@@ -10,6 +10,16 @@
 	margin: 5px;
 }
 
+.filter-title{
+	float: left; 
+	width: 100px;
+}
+
+.clear-container{
+	/* display: inline-block; */
+	margin: 5px;
+	float: right;
+}
 /* .jimu-widget-filter0 .filter-node.default-width-for-openAtStart{
 	width: 500px;
 } */

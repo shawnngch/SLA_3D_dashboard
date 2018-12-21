@@ -1,14 +1,11 @@
 {
   "editor": {
-    "showDeleteButton": true,
-    "prompOnSave": false,
-    "promptOnDelete": true,
-    "removeOnSave": true,
     "layerInfos": [
       
       {
         "featureLayer": {
-          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/1",
+          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/1",
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/PMS_INFO_TABLE/FeatureServer/0",
           "layerAllowsCreate": true,
           "layerAllowsUpdate": true,
           "layerAllowsDelete": true,
@@ -20,7 +17,8 @@
       },
       {
         "featureLayer": {
-          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/0",
+          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/0",
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/PROPERTY_ID_TABLE/FeatureServer/0",
           "layerAllowsCreate": true,
           "layerAllowsUpdate": true,
           "layerAllowsDelete": true,
@@ -33,6 +31,7 @@
       {
         "featureLayer": {
           "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/2",
+          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/TANGLIN_VILLAGE_SUBTENANT_T_0 /FeatureServer/0",
           "layerAllowsCreate": true,
           "layerAllowsUpdate": true,
           "layerAllowsDelete": true,
@@ -44,7 +43,8 @@
       },
       {
         "featureLayer": {
-          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/3",
+          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/3",
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/TANGLIN_VILLAGE_TENANCIES_TABLE/FeatureServer/0",
           "layerAllowsCreate": true,
           "layerAllowsUpdate": true,
           "layerAllowsDelete": true,
@@ -69,8 +69,8 @@
       },
       {
         "featureLayer": {
-          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_Bldgs/FeatureServer/0",
-          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Buildings_New/FeatureServer/0",
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_LOD2/FeatureServer/0",
+          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_Bldgs/FeatureServer/0",
           "layerAllowsCreate": true,
           "layerAllowsUpdate": true,
           "layerAllowsDelete": true,
@@ -81,10 +81,6 @@
         "allowDelete": false
       }
     ],
-    "displayPromptOnSave": true,
-    "displayPromptOnDelete": true,
-    "useFilterEditor": false,
-    "editDescription": "Select a template to create features",
     "ViewBy": [
       {
         "Display": "Facade",
@@ -181,6 +177,100 @@
         }
       },
       {
+        "Display": "Tenant Mix",
+        "Value": "Tenant Mix",
+        "Renderer": {
+          "type": "unique-value",
+          "field": "BROAD_CLASSIFICATION",
+          "uniqueValueInfos": [
+            {
+              "value": "Commercial (Mixed)",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#ff6384"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "Retail and F&B",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#36a2eb"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "Playfield",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#ffce56"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "F&B",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#4bc0c0"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "Religious",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#9966ff"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "Kindergarten",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#ff9f40"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
         "Display": "Rent Rate(psm)",
         "Value": "RentRatePSM",
         "Renderer": {
@@ -231,7 +321,212 @@
             }
           ]
         }
+      },
+      {
+        "Display": "Subtenant Mix",
+        "Value": "Subtenant Mix",
+        "Renderer": {
+          "type": "unique-value",
+          "field": "BROAD_CLASSIFICATION",
+          "uniqueValueInfos": [
+            {
+              "value": "F&B",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#ff6384"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "Office",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#36a2eb"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "Commercial School",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#ffce56"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "Enrichment centre",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#4bc0c0"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "Retail",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#9966ff"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "value": "Kindergarten",
+              "symbol": {
+                "type": "mesh-3d",
+                "symbolLayers": [
+                  {
+                    "type": "fill",
+                    "material": {
+                      "color": "#ff9f40"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
       }
-    ]
+    ],
+    "GeometryLayers":{
+      "subtenants":{
+        "sceneLayer": {
+          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Buildings_Tanglin_Subtenant/SceneServer",
+          "url1": "https://tiles.arcgis.com/tiles/GrCObcYo81O3Ymu8/arcgis/rest/services/Tanglin_Subtenant/SceneServer",
+          "url": "https://tiles.arcgis.com/tiles/GrCObcYo81O3Ymu8/arcgis/rest/services/Tanglin_Subtenant_New/SceneServer"
+        },
+        "ViewVals":[6]
+      },
+      "textured":{
+        "sceneLayer": {
+          "url": "https://tiles.arcgis.com/tiles/GrCObcYo81O3Ymu8/arcgis/rest/services/TexturedNew_LOD2/SceneServer",
+          "template" : {  
+            "title": "SLA",
+            "content": [{
+              "type": "fields",
+              "fieldInfos": [{
+                "fieldName": "BUILDING_NAME",
+                "label": "Property Name",
+                "visible": true
+              }, {
+                "fieldName": "SLA_DEPT_IN_CHARGE",
+                "label": "Dept in charge",
+                "visible": true
+              }, {
+                "fieldName": "MODE_OF_OCCUPATION",
+                "label": "Mode of Occupation",
+                "visible": true
+              }, {
+                "fieldName": "DIVORCD_CY",
+                "label": "Marketable/Unmarketable",
+                "visible": true
+              }, {
+                "fieldName": "LICENSEE_TENANT ",
+                "label": "Tenant Name",
+                "visible": true
+              }, {
+                "fieldName": "EXISTING_TA_START_DATE",
+                "label": "TA Start Date",
+                "visible": true
+              }, {
+                "fieldName": "EXISTING_TA_EXPIRY_DATE",
+                "label": "TA Expiry Date",
+                "visible": true
+              }, {
+                "fieldName": "COMMITTED_TENURE_END_DATE",
+                "label": "Tenure End Date",
+                "visible": true
+              }]
+            }]
+          }
+        },
+        "ViewVals":[0,1,2,3]
+      },
+      "untextured":{
+        "sceneLayer": {
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_LOD2/SceneServer",
+          "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_Bldgs/SceneServer",
+          "template" : {  
+            "title": "SLA",
+            "content": [{
+              "type": "fields",
+              "fieldInfos": [{
+                "fieldName": "BUILDING_NAME",
+                "label": "Property Name",
+                "visible": true
+              }, {
+                "fieldName": "SLA_DEPT_IN_CHARGE",
+                "label": "Dept in charge",
+                "visible": true
+              }, {
+                "fieldName": "MODE_OF_OCCUPATION",
+                "label": "Mode of Occupation",
+                "visible": true
+              }, {
+                "fieldName": "DIVORCD_CY",
+                "label": "Marketable/Unmarketable",
+                "visible": true
+              }, {
+                "fieldName": "LICENSEE_TENANT ",
+                "label": "Tenant Name",
+                "visible": true
+              }, {
+                "fieldName": "EXISTING_TA_START_DATE",
+                "label": "TA Start Date",
+                "visible": true
+              }, {
+                "fieldName": "EXISTING_TA_EXPIRY_DATE",
+                "label": "TA Expiry Date",
+                "visible": true
+              }, {
+                "fieldName": "COMMITTED_TENURE_END_DATE",
+                "label": "Tenure End Date",
+                "visible": true
+              }]
+            }]
+          }
+        },
+        "ViewVals":[0,1,2,3]
+      }
+    
+
+    },
+    "defaultView":{
+      "":"none",
+      "Overview":"Occupancy",
+      "Marketing":"Occupancy",
+      "Leasing":"SLA_DeptInCharge",
+      "Subtenant":"Subtenant Mix"
+    }
+    
   }
 }

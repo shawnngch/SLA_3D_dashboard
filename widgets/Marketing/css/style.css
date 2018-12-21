@@ -84,6 +84,29 @@ section{
 .hidden{
   display: none;
 }
+table{
+  height: calc(100% - 20px);
+  width:  100%;
+  font-size: 1.2em;
+}
+.td1{
+  /* font-weight: bold; */
+  text-align: left;
+}
+.td2{
+  /* width:1%; */
+  /* white-space:nowrap; */
+  text-align: left;
+}
+
+
+.mySlides {
+  display:none;
+  height: 100%;
+}
+.w3-left, .w3-right, .w3-badge {cursor:pointer}
+.w3-badge {height:13px;width:13px;padding:0;
+  display: inline-block;}
 /***************************************************************************
 responsive classes:jimu-r
 ***************************************************************************/

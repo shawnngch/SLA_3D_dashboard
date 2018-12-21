@@ -97,17 +97,17 @@ define([
       for (var i = 0; i < tenancy0.length; i++) {
         // if (tenancy0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
         if (tenantvalues.indexOf(tenancy0[i].TA_Account) != -1 || tenantvalues.length == 0) {
-          if (tenancy0[i].Timeline == window.maxTimeline) tenancy.push(tenancy0[i])
+          if (tenancy0[i].TIMELINE == window.maxTimeline) tenancy.push(tenancy0[i])
         }
       }
       for (var i = 0; i < IDTA0.length; i++) {
         // if (IDTA0[i].TA_Account == this.TenantFilter.value || this.TenantFilter.value == '') {
         if (tenantvalues.indexOf(IDTA0[i].TA_Account) != -1 || tenantvalues.length == 0) {
-          if (IDTA0[i].Timeline == window.maxTimeline) IDTA.push(IDTA0[i])
+          if (IDTA0[i].TIMELINE == window.maxTimeline) IDTA.push(IDTA0[i])
         }
       }
       for (var i = 0; i < IDTA.length; i++) {
-        var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA[i].Property_ID, "Timeline", window.maxTimeline)
+        var PMSindex = findWithAttr(PMS0, "PROPERTY_ID", IDTA[i].PROPERTY_ID, "TIMELINE", window.maxTimeline)
         if (PMSindex != -1) {
           PMS.push(PMS0[PMSindex])
         }
@@ -130,22 +130,36 @@ define([
       // }
       var TATableData = tenancy.map(function (obj) {
         return Object.keys(obj).map(function (key) {
+          if (key.includes("_DATE")){
+            obj[key]= window.toShortDate(obj[key])
+          }
           return obj[key];
         });
       });
       var subtenancyTableData = subtenants.map(function (obj) {
         return Object.keys(obj).map(function (key) {
+          if (key.includes("_DATE")){
+            obj[key]= window.toShortDate(obj[key])
+          }
           return obj[key];
         });
       });
 
       var TAColNames = [], subtenancyColNames = [];
-      for (var i = 0; i < tenancyAttributes.length; i++) {
-        TAColNames.push({ title: tenancyAttributes[i] })
+      // for (var i = 0; i < tenancyAttributes.length; i++) {
+      //   TAColNames.push({ title: tenancyAttributes[i] })
+      // }
+      var col = ['','','','TA Account','','','','Tenant Name','Tenancy Status','Property','','Specific Usage','','','','GFA(m²)','','','Monthly Rental','','Rate(PSF)','','TA Start Date','TA End Date','Tenure End Date','','','']
+      for (var i = 0; i < col.length; i++) {
+        TAColNames.push({ title: col[i] })
       }
       for (var i = 0; i < subtenantsAttributes.length; i++) {
         subtenancyColNames.push({ title: subtenantsAttributes[i] })
       }
+      // var stCol = ['','','','TA Account','','','','Tenant Name','Tenancy Status','Property','','Specific Usage','','','','GFA(m²)','','','Monthly Rental','','Rate(PSF)','','TA Start Date','TA End Date','Tenure End Date','','','']
+      // for (var i = 0; i < stCol.length; i++) {
+      //   subtenancyColNames.push({ stCol: col[i] })
+      // }
 
       //TATable
       if (this.TADataTableLoaded == false) {
@@ -166,11 +180,63 @@ define([
               visible: false
             },
             {
-              targets: [3],
+              targets: [4],
+              visible: false
+            },
+            {
+              targets: [5],
+              visible: false
+            },
+            {
+              targets: [6],
+              visible: false
+            },
+            {
+              targets: [10],
               visible: false
             },
             {
               targets: [12],
+              visible: false
+            },
+            {
+              targets: [13],
+              visible: false
+            },
+            {
+              targets: [14],
+              visible: false
+            },
+            {
+              targets: [16],
+              visible: false
+            },
+            {
+              targets: [17],
+              visible: false
+            },
+            {
+              targets: [19],
+              visible: false
+            },
+            {
+              targets: [21],
+              visible: false
+            },
+            {
+              targets: [25],
+              visible: false
+            },
+            {
+              targets: [26],
+              visible: false
+            },
+            {
+              targets: [27],
+              visible: false
+            },
+            {
+              targets: [28],
               visible: false
             }
           ],
@@ -191,7 +257,7 @@ define([
         this.subtenancyDT = $('#subtenancyTable').DataTable({
           data: subtenancyTableData,
           columns: subtenancyColNames,
-          // columnDefs: [
+          // columnDefs: [4,5,7,11,13,16,18
           //   {
           //     targets: [0],
           //     visible: false
@@ -209,7 +275,51 @@ define([
           //     visible: false
           //   },
           //   {
+          //     targets: [6],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [8],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [9],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [10],
+          //     visible: false
+          //   },
+          //   {
           //     targets: [12],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [14],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [15],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [17],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [19],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [20],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [21],
+          //     visible: false
+          //   },
+          //   {
+          //     targets: [22],
           //     visible: false
           //   }
           // ],

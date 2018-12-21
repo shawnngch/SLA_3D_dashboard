@@ -4,23 +4,81 @@
 		<input type="text" id="datepicker" data-dojo-attach-point="datepicker0" class="filter">
 	</div>
 	<div class="inner-wrapper-3 hidden" id="col-container" data-dojo-attach-point="colcontainer">
-		<section class="jimu-r-row row-2-3">
+		<section class="jimu-r-row row-3-5">
 			<section class="col-1-2 card" id="MasterTenant">
 				<section class="row-2-5 col-1-1 card" id="ClusterInformation">
 					<h3>Cluster Information</h3>
+					<table>
+						<tr>
+							<td class="td1">No. of Properties</td>
+							<td class="td2" data-dojo-attach-point="NoOfProp"></td>
+						</tr>
+						<tr>
+							<td class="td1">Total Monthly Rent</td>
+							<td class="td2" data-dojo-attach-point="monthlyRent"></td>
+						</tr>
+						<tr>
+							<td class="td1">Marketable Properties</td>
+							<td class="td2" data-dojo-attach-point="propMarketable"></td>
+						</tr>
+						<tr>
+							<td class="td1">Unmarketable Properties</td>
+							<td class="td2" data-dojo-attach-point="propUnmarketable"></td>
+						</tr>
+					</table>
 				</section>
 				<section class="row-3-5 col-1-1 card" id="LeaseExpiry">
 					<h3>Lease Expiry Portfolio by Gross Rental Revenue</h3>
-					<canvas data-dojo-attach-point="LeaseExpiryChart"></canvas>
+					<div class="chart-container">
+						<canvas data-dojo-attach-point="ChartRent"></canvas>
+					</div>
 				</section>
 			</section>
 			<section class="col-1-2 card" id="PropertyInformation">
 				<h3>Property Information</h3>
+				<table data-dojo-attach-point="tblPropertyInformation">
+					<tr>
+						<td class="td1">Property Name</td>
+						<td class="td2" data-dojo-attach-point="PropertyName"></td>
+					</tr>
+					<tr>
+						<td class="td1">Occupancy Status</td>
+						<td class="td2" data-dojo-attach-point="OccupancyStatus"></td>
+					</tr>
+					<tr>
+						<td class="td1">Tenant</td>
+						<td class="td2" data-dojo-attach-point="Tenant"></td>
+					</tr>
+					<tr>
+						<td class="td1">Lease Expiry</td>
+						<td class="td2" data-dojo-attach-point="LeaseExpiry"></td>
+					</tr>
+					<tr>
+						<td class="td1">Approved broad land use</td>
+						<td class="td2" data-dojo-attach-point="ApprovedBroadLandUse"></td>
+					</tr>
+					<tr>
+						<td class="td1">GFA</td>
+						<td class="td2" data-dojo-attach-point="GFA"></td>
+					</tr>
+					<tr>
+						<td class="td1">Asking Rent</td>
+						<td class="td2" data-dojo-attach-point="AskingRent"></td>
+					</tr>
+					<tr>
+						<td class="td1">Reserve Rent</td>
+						<td class="td2" data-dojo-attach-point="ReserveRent"></td>
+					</tr>
+				</table>
 			</section>
 		</section>
-		<section class=" jimu-r-row row-1-3">
+		<section class=" jimu-r-row row-2-5">
 			<section class="col-1-1 card" id="Photos">
 				<h3>Photos</h3>
+				<!-- <div class="w3-content w3-display-container" style="max-width:800px"> -->
+				<div data-dojo-attach-point="ImageContainer">
+
+				</div>
 			</section>
 		</section>
 
