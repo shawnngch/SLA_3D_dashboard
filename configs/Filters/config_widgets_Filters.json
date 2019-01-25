@@ -1,7 +1,6 @@
 {
   "editor": {
     "layerInfos": [
-      
       {
         "featureLayer": {
           "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/ArcGIS/rest/services/SLA_Dashboard_Tables/FeatureServer/1",
@@ -69,7 +68,8 @@
       },
       {
         "featureLayer": {
-          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_LOD2/FeatureServer/0",
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_LOD2_Attach/FeatureServer/0",
+          "url1": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_LOD2/FeatureServer/0",
           "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_Bldgs/FeatureServer/0",
           "layerAllowsCreate": true,
           "layerAllowsUpdate": true,
@@ -115,7 +115,7 @@
                   {
                     "type": "fill",
                     "material": {
-                      "color": "red"
+                      "color": "#ff9f40"
                     }
                   }
                 ]
@@ -129,10 +129,30 @@
                   {
                     "type": "fill",
                     "material": {
-                      "color": "green"
+                      "color": "#4bc0c0"
                     }
                   }
                 ]
+              }
+            }
+          ]
+        },
+        "Renderer2D": {
+          "type": "unique-value",
+          "field": "SLA_DEPT_IN_CHARGE",
+          "uniqueValueInfos": [
+            {
+              "value": "EM",
+              "symbol": {
+                "type": "simple-fill",
+                "color": "#ff9f40"
+              }
+            },
+            {
+              "value": "IHL",
+              "symbol": {
+                "type": "simple-fill",
+                "color": "#4bc0c0"
               }
             }
           ]
@@ -153,14 +173,14 @@
                   {
                     "type": "fill",
                     "material": {
-                      "color": "red"
+                      "color": "#ffce56"
                     }
                   }
                 ]
               }
             },
             {
-              "value": null,
+              "value": "Vacant",
               "symbol": {
                 "type": "mesh-3d",
                 "symbolLayers": [
@@ -171,6 +191,26 @@
                     }
                   }
                 ]
+              }
+            }
+          ]
+        },
+        "Renderer2D": {
+          "type": "unique-value",
+          "field": "MODE_OF_OCCUPATION",
+          "uniqueValueInfos": [
+            {
+              "value": "TA",
+              "symbol": {
+                "type": "simple-fill",
+                "color": "#ffce56"
+              }
+            },
+            {
+              "value": "Vacant",
+              "symbol": {
+                "type": "simple-fill",
+                "color": "#E0FFFF"
               }
             }
           ]
@@ -417,116 +457,159 @@
         }
       }
     ],
-    "GeometryLayers":{
-      "subtenants":{
+    "GeometryLayers": {
+      "subtenants": {
         "sceneLayer": {
           "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Buildings_Tanglin_Subtenant/SceneServer",
           "url1": "https://tiles.arcgis.com/tiles/GrCObcYo81O3Ymu8/arcgis/rest/services/Tanglin_Subtenant/SceneServer",
           "url": "https://tiles.arcgis.com/tiles/GrCObcYo81O3Ymu8/arcgis/rest/services/Tanglin_Subtenant_New/SceneServer"
         },
-        "ViewVals":[6]
+        "ViewVals": [
+          6
+        ]
       },
-      "textured":{
+      "textured": {
         "sceneLayer": {
-          "url": "https://tiles.arcgis.com/tiles/GrCObcYo81O3Ymu8/arcgis/rest/services/TexturedNew_LOD2/SceneServer",
-          "template" : {  
+          "url0": "https://tiles.arcgis.com/tiles/GrCObcYo81O3Ymu8/arcgis/rest/services/TexturedNew_LOD2/SceneServer",
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/TexturedNew_LOD2/SceneServer",
+          "template": {
             "title": "SLA",
-            "content": [{
-              "type": "fields",
-              "fieldInfos": [{
-                "fieldName": "BUILDING_NAME",
-                "label": "Property Name",
-                "visible": true
-              }, {
-                "fieldName": "SLA_DEPT_IN_CHARGE",
-                "label": "Dept in charge",
-                "visible": true
-              }, {
-                "fieldName": "MODE_OF_OCCUPATION",
-                "label": "Mode of Occupation",
-                "visible": true
-              }, {
-                "fieldName": "DIVORCD_CY",
-                "label": "Marketable/Unmarketable",
-                "visible": true
-              }, {
-                "fieldName": "LICENSEE_TENANT ",
-                "label": "Tenant Name",
-                "visible": true
-              }, {
-                "fieldName": "EXISTING_TA_START_DATE",
-                "label": "TA Start Date",
-                "visible": true
-              }, {
-                "fieldName": "EXISTING_TA_EXPIRY_DATE",
-                "label": "TA Expiry Date",
-                "visible": true
-              }, {
-                "fieldName": "COMMITTED_TENURE_END_DATE",
-                "label": "Tenure End Date",
-                "visible": true
-              }]
-            }]
+            "content": [
+              {
+                "type": "fields",
+                "fieldInfos": [
+                  {
+                    "fieldName": "BUILDING_NAME",
+                    "label": "Property Name",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "SLA_DEPT_IN_CHARGE",
+                    "label": "Dept in charge",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "MODE_OF_OCCUPATION",
+                    "label": "Mode of Occupation",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "DIVORCD_CY",
+                    "label": "Marketable/Unmarketable",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "LICENSEE_TENANT ",
+                    "label": "Tenant Name",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "EXISTING_TA_START_DATE",
+                    "label": "TA Start Date",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "EXISTING_TA_EXPIRY_DATE",
+                    "label": "TA Expiry Date",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "COMMITTED_TENURE_END_DATE",
+                    "label": "Tenure End Date",
+                    "visible": true
+                  }
+                ]
+              }
+            ]
           }
         },
-        "ViewVals":[0,1,2,3]
+        "ViewVals": [
+          0,
+          1,
+          2,
+          3
+        ]
       },
-      "untextured":{
+      "untextured": {
         "sceneLayer": {
-          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_LOD2/SceneServer",
+          "url": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_LOD2_Attach/SceneServer",
+          "url1": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_LOD2/SceneServer",
           "url0": "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_Bldgs/SceneServer",
-          "template" : {  
+          "template": {
             "title": "SLA",
-            "content": [{
-              "type": "fields",
-              "fieldInfos": [{
-                "fieldName": "BUILDING_NAME",
-                "label": "Property Name",
-                "visible": true
-              }, {
-                "fieldName": "SLA_DEPT_IN_CHARGE",
-                "label": "Dept in charge",
-                "visible": true
-              }, {
-                "fieldName": "MODE_OF_OCCUPATION",
-                "label": "Mode of Occupation",
-                "visible": true
-              }, {
-                "fieldName": "DIVORCD_CY",
-                "label": "Marketable/Unmarketable",
-                "visible": true
-              }, {
-                "fieldName": "LICENSEE_TENANT ",
-                "label": "Tenant Name",
-                "visible": true
-              }, {
-                "fieldName": "EXISTING_TA_START_DATE",
-                "label": "TA Start Date",
-                "visible": true
-              }, {
-                "fieldName": "EXISTING_TA_EXPIRY_DATE",
-                "label": "TA Expiry Date",
-                "visible": true
-              }, {
-                "fieldName": "COMMITTED_TENURE_END_DATE",
-                "label": "Tenure End Date",
-                "visible": true
-              }]
-            }]
+            "content": [
+              {
+                "type": "fields",
+                "fieldInfos": [
+                  {
+                    "fieldName": "GBR_ID",
+                    "label": "GBR_ID",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "TIMELINE",
+                    "label": "Timeline",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "BUILDING_NAME",
+                    "label": "Property Name",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "SLA_DEPT_IN_CHARGE",
+                    "label": "Dept in charge",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "MODE_OF_OCCUPATION",
+                    "label": "Mode of Occupation",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "DIVORCD_CY",
+                    "label": "Marketable/Unmarketable",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "LICENSEE_TENANT ",
+                    "label": "Tenant Name",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "EXISTING_TA_START_DATE",
+                    "label": "TA Start Date",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "EXISTING_TA_EXPIRY_DATE",
+                    "label": "TA Expiry Date",
+                    "visible": true
+                  },
+                  {
+                    "fieldName": "COMMITTED_TENURE_END_DATE",
+                    "label": "Tenure End Date",
+                    "visible": true
+                  }
+                ]
+              }
+            ]
           }
         },
-        "ViewVals":[0,1,2,3]
+        "ViewVals": [
+          0,
+          1,
+          2,
+          3
+        ]
       }
-    
-
     },
-    "defaultView":{
-      "":"none",
-      "Overview":"Occupancy",
-      "Marketing":"Occupancy",
-      "Leasing":"SLA_DeptInCharge",
-      "Subtenant":"Subtenant Mix"
+    "defaultView": {
+      "": "none",
+      "Overview": "Occupancy",
+      "Marketing": "Occupancy",
+      "Leasing": "SLA_DeptInCharge",
+      "Subtenant": "Subtenant Mix"
     }
-    
   }
 }

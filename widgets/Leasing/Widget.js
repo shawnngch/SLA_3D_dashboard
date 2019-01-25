@@ -49,8 +49,6 @@ define([
       postCreate: function () {
         this.inherited(arguments);
 
-        this._AfterLoad();
-
         var that = this
         //Global Variable Listener (on window.filterlistener)
         window.filterlistener.registerListener(function (val) {
@@ -63,6 +61,9 @@ define([
         window.lastwidget.setWidget("Leasing");
         //Show first tab for Expiry Chart
         $("#ExpGFA").click()
+      },
+      onClose: function () {
+        window.lastwidget.setWidget("");
       },
 
       _onFilterChanged: function () {
@@ -163,7 +164,6 @@ define([
         if (this.ChartN != null) {
           this.ChartN.destroy()
           this.ChartR.destroy()
-          // this.Chart6M.destroy()
         }
         this.ChartN = new Chart(this.ChartNLA, {
           type: 'bar',
@@ -297,14 +297,14 @@ define([
         const tenancyAttributes = Object.keys(tenancy[0])
         for (var i = 0; i < tenancy.length; i++) {
           // if (tenancy[i].EXISTING_TA_EXPIRY_DATE > new Date()) {
-            var modeIndex = allocationNo.modeOfAllocation.indexOf(tenancy[i].MODE_OF_ALLOCATION)
-            totalExpiring += 1
-            if (modeIndex == -1) {
-              allocationNo.modeOfAllocation.push(tenancy[i].MODE_OF_ALLOCATION)
-              allocationNo.qty.push(1)
-            } else {
-              allocationNo.qty[modeIndex] += 1
-            }
+          var modeIndex = allocationNo.modeOfAllocation.indexOf(tenancy[i].MODE_OF_ALLOCATION)
+          totalExpiring += 1
+          if (modeIndex == -1) {
+            allocationNo.modeOfAllocation.push(tenancy[i].MODE_OF_ALLOCATION)
+            allocationNo.qty.push(1)
+          } else {
+            allocationNo.qty[modeIndex] += 1
+          }
           // }
 
           tenancy[i].EXISTING_TA_START_DATE = window.toShortDate(tenancy[i].EXISTING_TA_START_DATE)
@@ -313,70 +313,6 @@ define([
           const tenancyRowArray = Object.values(tenancy[i])
           TATableData.push(tenancyRowArray)
         }
-
-        // this.Chart6M = new Chart(this.Chart6Month, {
-        //   type: 'bar',
-        //   data: {
-        //     labels: allocationNo.modeOfAllocation,
-        //     datasets: [{
-        //       label: '6Month',
-        //       data: allocationNo.qty,
-        //       // yAxisID: 'Distict Count',
-        //       backgroundColor: [
-        //         'rgba(255, 99, 132, 0.2)',
-        //         'rgba(54, 162, 235, 0.2)',
-        //         'rgba(255, 206, 86, 0.2)',
-        //         'rgba(75, 192, 192, 0.2)',
-        //         'rgba(153, 102, 255, 0.2)',
-        //         'rgba(255, 159, 64, 0.2)'
-        //       ],
-        //       borderColor: [
-        //         'rgba(255,99,132,1)',
-        //         'rgba(54, 162, 235, 1)',
-        //         'rgba(255, 206, 86, 1)',
-        //         'rgba(75, 192, 192, 1)',
-        //         'rgba(153, 102, 255, 1)',
-        //         'rgba(255, 159, 64, 1)'
-        //       ],
-        //       borderWidth: 1,
-        //       datalabels: {
-        //         anchor: 'end',
-        //         align: 'end'
-        //       }
-        //     }]
-        //   },
-        //   options: {
-        //     'onClick': (evt, item) => {
-        //       if (item.length > 0)
-        //         console.log(item[0]['_model'].label)
-        //     },
-        //     plugins: {
-        //       datalabels: {
-        //         color: 'grey',
-        //         display: function (context) {
-        //           return context.dataset.data[context.dataIndex];
-        //         },
-        //         font: {
-        //           weight: 'bold'
-        //         },
-        //         formatter: Math.round
-        //       }
-        //     },
-        //     //Chart Size
-        //     responsive: true,
-        //     maintainAspectRatio: false,
-        //     scales: {
-        //       yAxes: [{
-        //         ticks: {
-        //           beginAtZero: true
-        //         }
-        //       }]
-        //     },
-        //     legend: {
-        //       display: false
-        //     }
-        //   }
-        // });
 
         //Set data for expiryTable
         this.expiringTable.innerHTML = ""
@@ -393,7 +329,7 @@ define([
         // for (var i = 0; i < tenancyAttributes.length; i++) {
         //   colNames.push({ title: tenancyAttributes[i] })
         // }
-        var col = ['','','','TA Account','','','','Tenant Name','Tenancy Status','Property','','Specific Usage','','','','GFA(m²)','','','Monthly Rental','','Rate(PSF)','','TA Start Date','TA End Date','Tenure End Date','','','']
+        var col = ['', '', '', 'TA Account', '', '', '', 'Tenant Name', 'Tenancy Status', 'Property', '', 'Specific Usage', '', '', '', 'GFA(m²)', '', '', 'Monthly Rental', '', 'Rate(PSF)', '', 'TA Start Date', 'TA End Date', 'Tenure End Date', '', '', '']
         for (var i = 0; i < col.length; i++) {
           colNames.push({ title: col[i] })
         }
@@ -487,6 +423,12 @@ define([
               pageResize: true
             });
 
+            var that = this
+            $('#TATable tbody').on('click', 'tr', function () {
+              var text = that.TADT.row(this).data()
+              console.log(text);
+            });
+
           } catch (error) {
             console.log(error.message)
           }
@@ -514,16 +456,6 @@ define([
         });
       },
 
-      _AfterLoad: function () {
-        // this.TenantFilter.innerHTML = "<option></option>"
-        // for (var i = 0; i < window.tenancy.length; i++) {
-        //   if (this.tenancyList.indexOf(window.tenancy[i].TA_Account) == -1) {
-        //     this.TenantFilter.innerHTML += "<option value='" + window.tenancy[i].TA_Account + "'>" + window.tenancy[i].TA_Account + " - " + window.tenancy[i].Licensee_Tenant_Name + "</option>"
-        //     this.tenancyList.push(window.tenancy[i].TA_Account)
-        //   }
-        // }
-        // this.own(on(this.TenantFilter, 'change', lang.hitch(this, this._onFilterChanged)));
-      },
       _chartSelect: function (evt) {
         console.log(evt.currentTarget.id)
 

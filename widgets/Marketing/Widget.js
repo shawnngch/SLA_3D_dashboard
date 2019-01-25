@@ -24,13 +24,16 @@ define([
   'dojo/_base/config',
   'jimu/utils',
   'esri/core/watchUtils',
-], function (declare, BaseWidget, _WidgetsInTemplateMixin, on, lang, html, djConfig, jimuUtils, watchUtils,
-  ) {
+  'esri/layers/FeatureLayer'
+], function (declare, BaseWidget, _WidgetsInTemplateMixin, on, lang, html, djConfig, jimuUtils, watchUtils, FeatureLayer
+) {
 
     var clazz = declare([BaseWidget, _WidgetsInTemplateMixin], {
 
       baseClass: 'jimu-widget-overview',
       ChartR: null,
+      PropertyTableLoaded: false,
+      PropertyTable: null,
 
       postCreate: function () {
         this.inherited(arguments);
@@ -38,53 +41,87 @@ define([
         //Global Variable Listener (on window.filterlistener)
         window.filterlistener.registerListener(function (val) {
           //populate Cluster Info
-          // that._populateClusterInfo();
+          that._populateClusterInfo();
         });
 
       },
+
       onOpen: function () {
         window.lastwidget.setWidget("Marketing");
         $("#datepicker").datepicker({ dateFormat: 'dd M yy' });
+        this._populateClusterInfo();
+
+        this._hidePhotos()
 
         var that = this
         $('#datepicker').change(function () {
           window.OccupationDate.DateVal = that.datepicker0.value
-          console.log(that.datepicker0.value)
-          if (that.datepicker0.value == "") {
-            that.colcontainer.classList.add("hidden");
-          } else {
-            that.colcontainer.classList.remove("hidden");
-            //populate Cluster Info
-            that._populateClusterInfo();
 
-          }
-
-
+          that._hidePhotos()
         });
-        this.tblPropertyInformation.classList.add("hidden");
-        this.ImageContainer.classList.add("hidden");
 
         var view = this.sceneView
         view.on("click", function (event) {
+
           view.hitTest(event.screenPoint).then(function (response) {
             var graphic = response.results[0].graphic;
             var feature = that._findFeature(window.Buildings, graphic);
-            // console.log(feature);
             if (!(feature == null)) {
-              // that.colcontainer.classList.remove("hidden");
-              that._populateContent(feature);
-              that.tblPropertyInformation.classList.remove("hidden");
-              that.ImageContainer.classList.remove("hidden");
 
-              that._loadimages(feature.GBR_ID);
-              that._imagecontrols();
+              //filter PropertyInfoTable
+              that.PropertyTable.column(6).search(feature.PROPERTY_ID, true, false).draw();
+
+              //Attachments
+              const LOD2Untextured = new FeatureLayer({
+                // Building feature service URL
+                // url: "https://services2.arcgis.com/GrCObcYo81O3Ymu8/arcgis/rest/services/Untextured_LOD2_Attach/FeatureServer/0"
+                url : window._config.layerInfos[5].featureLayer.url
+              });
+
+              that.ImageContainer.innerHTML = ''
+              LOD2Untextured.queryFeatureAttachments(graphic).then(function (attachments) {
+                if (attachments.length > 0) {
+                  that._showPhotos()
+                  // Lightbox (Modal Image Gallery)
+                  that.ImageContainer.innerHTML += '<img id="img_0" src="' + attachments[0].url + '" style="width:100%" class="hover-shadow cursor">'
+                  $("#img_0").click(function () {
+                    that.openModal()
+                    that.currentSlide(1)
+                  });
+                }else{
+                  that._hidePhotos()
+                }
+
+                that.modalcontent.innerHTML = ''
+                $(".modalClose").click(function () { that.closeModal() });
+                for (var x = 0, xl = attachments.length; x < xl; x++) {
+                  var xp = x + 1
+                  that.modalcontent.innerHTML += '<div class="mySlides"><div class="numbertext">' + xp + ' / ' + xl + '</div><img src="' + attachments[x].url + '" style="width:100%"></div>'
+                };
+                that.modalcontent.innerHTML += '<a class="slidePrev">&#10094;</a><a class="slideNext">&#10095;</a>'
+                $(".slidePrev").click(function () { that.plusSlides(-1) });
+                $(".slideNext").click(function () { that.plusSlides(1) });
+              });
             }
-            // } else {
-            //   that.colcontainer.classList.add("hidden");
-
-            // }
           });
         });
+      },
+      onClose: function () {
+        window.lastwidget.setWidget("");
+      },
+
+      _showPhotos: function () {
+        this.ClusterInformation.classList.remove("row-1-1")
+        this.ClusterInformation.classList.add("row-2-5")
+        this.Photos.classList.remove("hidden")
+        this.Photos.classList.add("row-3-5")
+      },
+
+      _hidePhotos: function () {
+        this.ClusterInformation.classList.add("row-1-1")
+        this.ClusterInformation.classList.remove("row-2-5")
+        this.Photos.classList.add("hidden")
+        this.Photos.classList.remove("row-3-5")
       },
 
       _findFeature: function (layer, graphic) {
@@ -252,6 +289,41 @@ define([
         this.propMarketable.textContent = marketable;
         this.propUnmarketable.textContent = unmarketable;
 
+        // Property Data Table
+        const propertyAttributes = Object.keys(window.Buildings[0])
+        var propertyColNames = [];
+        for (var i = 0; i < propertyAttributes.length; i++) {
+          propertyColNames.push({ title: propertyAttributes[i] })
+        }
+        var propertyTableData = window.Buildings.map(function (obj) {
+          return Object.keys(obj).map(function (key) {
+            if (key.includes("_DATE") || key == "TIMELINE") {
+              obj[key] = window.toShortDate(obj[key])
+            }
+            return obj[key];
+          });
+        });
+        var tblHeight = document.getElementById('PropertyInformation').clientHeight - 60
+
+        if (this.PropertyTableLoaded == false) {
+          this.PropertyTable = $('#PropertyTable').DataTable({
+            data: propertyTableData,
+            columns: propertyColNames,
+            scrollY: tblHeight,
+            // scrollY: 360,
+            scrollCollapse: true,
+            scrollX: true,
+            paging: false,
+            dom: 't'
+          });
+          this.PropertyTableLoaded = true
+        } else {
+          var propertyvalues = $('#PropertyFilter').dropdown('get value');
+          var searchstr = propertyvalues.join("|");
+
+          this.PropertyTable.column(6).search(searchstr, true, false).draw();
+        }
+
       },
 
       _populateContent: function (feature) {
@@ -306,24 +378,45 @@ define([
           // dots[slideIndex-1].className += " w3-white";
         }
       },
-      _loadimages: function (GBR_ID) {
-        function imageExists(image_url) {
+      resize: function () {
+        console.log("Marketing resize")
 
-          var http = new XMLHttpRequest();
+        var tblHeight = document.getElementById('PropertyInformation').clientHeight - 60
 
-          http.open('HEAD', image_url, false);
-          http.send();
-
-          return http.status != 404;
-
+        if (this.PropertyTableLoaded == true) {
+          $('#PropertyInformation .dataTables_scrollBody').height(tblHeight + 'px');
         }
+      },
 
-        this.ImageContainer.innerHTML = ""
-        for (i = 1; i <= 10; i++) {
-          if (imageExists("widgets/Marketing/images/photos/" + GBR_ID + "-" + i + ".jpg")) {
-            this.ImageContainer.innerHTML += "<img class='mySlides' src='widgets/Marketing/images/photos/" + GBR_ID + "-" + i + ".jpg' style='width:100%'>"
-          }
+      openModal: function () {
+        document.getElementById('myModal').style.display = "block";
+        document.getElementById('widgets_Legend0').style.display = "none";
+        document.getElementById('widgets_Filter0').style.display = "none";
+      },
+
+      closeModal: function () {
+        document.getElementById('myModal').style.display = "none";
+        document.getElementById('widgets_Legend0').style.display = "block";
+        document.getElementById('widgets_Filter0').style.display = "block";
+      },
+
+      plusSlides: function (n) {
+        this.showSlides(slideIndex += n);
+      },
+
+      currentSlide: function (n) {
+        this.showSlides(slideIndex = n);
+      },
+
+      showSlides: function (n) {
+        var i;
+        var slides = document.getElementsByClassName("mySlides");
+        if (n > slides.length) { slideIndex = 1 }
+        if (n < 1) { slideIndex = slides.length }
+        for (i = 0; i < slides.length; i++) {
+          slides[i].style.display = "none";
         }
+        slides[slideIndex - 1].style.display = "block";
       }
 
     });

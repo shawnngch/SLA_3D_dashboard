@@ -63,10 +63,9 @@ define([
     },
     onOpen: function () {
       window.lastwidget.setWidget("Subtenant");
-      // var dd = $('#TA1').dropdown();
-
-      // this._onFilterChanged();
-
+    },
+    onClose: function () {
+      window.lastwidget.setWidget("");
     },
 
     _onFilterChanged: function () {
@@ -138,7 +137,7 @@ define([
       });
       var subtenancyTableData = subtenants.map(function (obj) {
         return Object.keys(obj).map(function (key) {
-          if (key.includes("_DATE")){
+          if (key.includes("_Date")){
             obj[key]= window.toShortDate(obj[key])
           }
           return obj[key];
@@ -153,13 +152,13 @@ define([
       for (var i = 0; i < col.length; i++) {
         TAColNames.push({ title: col[i] })
       }
-      for (var i = 0; i < subtenantsAttributes.length; i++) {
-        subtenancyColNames.push({ title: subtenantsAttributes[i] })
-      }
-      // var stCol = ['','','','TA Account','','','','Tenant Name','Tenancy Status','Property','','Specific Usage','','','','GFA(m²)','','','Monthly Rental','','Rate(PSF)','','TA Start Date','TA End Date','Tenure End Date','','','']
-      // for (var i = 0; i < stCol.length; i++) {
-      //   subtenancyColNames.push({ stCol: col[i] })
+      // for (var i = 0; i < subtenantsAttributes.length; i++) {
+      //   subtenancyColNames.push({ title: subtenantsAttributes[i] })
       // }
+      var stCol = ['objectid','sn','TA Account','Property ID','GBR ID','Block No','Unit No','Classification of Cluster','Licensee Tenant Name','Status of Tenancy','Unit Location','Broad Classification of Use','Specific usage','Type of Food Retail Offering','GFA(sqm)','GFA(psf)','Approved ORA area','Monthly Rental','Rate(Psm)','Rate(Psf)','Maintence Charge','TA Start Date','TA Expiry Date','Commited Tenure End Date']
+      for (var i = 0; i < stCol.length; i++) {
+        subtenancyColNames.push({ title: stCol[i] })
+      }
 
       //TATable
       if (this.TADataTableLoaded == false) {
@@ -257,72 +256,72 @@ define([
         this.subtenancyDT = $('#subtenancyTable').DataTable({
           data: subtenancyTableData,
           columns: subtenancyColNames,
-          // columnDefs: [4,5,7,11,13,16,18
-          //   {
-          //     targets: [0],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [1],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [2],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [3],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [6],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [8],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [9],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [10],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [12],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [14],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [15],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [17],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [19],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [20],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [21],
-          //     visible: false
-          //   },
-          //   {
-          //     targets: [22],
-          //     visible: false
-          //   }
-          // ],
+          columnDefs: [//4,5,7,11,13,16,18
+            {
+              targets: [0],
+              visible: false
+            },
+            {
+              targets: [1],
+              visible: false
+            },
+            {
+              targets: [2],
+              visible: false
+            },
+            {
+              targets: [3],
+              visible: false
+            },
+            {
+              targets: [6],
+              visible: false
+            },
+            {
+              targets: [8],
+              visible: false
+            },
+            {
+              targets: [9],
+              visible: false
+            },
+            {
+              targets: [10],
+              visible: false
+            },
+            {
+              targets: [12],
+              visible: false
+            },
+            {
+              targets: [14],
+              visible: false
+            },
+            {
+              targets: [15],
+              visible: false
+            },
+            {
+              targets: [17],
+              visible: false
+            },
+            {
+              targets: [19],
+              visible: false
+            },
+            {
+              targets: [20],
+              visible: false
+            },
+            {
+              targets: [21],
+              visible: false
+            },
+            {
+              targets: [22],
+              visible: false
+            }
+          ],
           scrollY: '250',
           scrollX: true,
           paging: false,

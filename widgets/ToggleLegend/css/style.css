@@ -1,0 +1,74 @@
+.jimu-widget-toggleLegend {
+  opacity: 0.8;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.jimu-widget-toggleLegend:hover{
+  opacity: 1;
+}
+
+.jimu-widget-toggleLegend .toggleLegend {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  text-align: center;
+  line-height: 32px;
+  font-size: 14px;
+  background-color: #fff;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.jimu-widget-toggleLegend .toggleLegend:before{
+  font-family: 'Themefont';
+}
+
+.jimu-widget-toggleLegend .toggleLegend.restore:before {
+  content: "\a906";
+}
+
+.jimu-widget-toggleLegend .toggleLegend.maximize:before {
+  content: "\a905";
+}
+
+/*full-screen style for browsers*/
+:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:-moz-full-screen {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:-ms-toggleLegend {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:toggleLegend {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:full-screen {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:toggleLegend-ancestor {
+  z-index: -1;
+}
+
+/*display dijitPopups after toggleLegend*/
+.body-toggleLegended > .dijitPopup {
+  z-index: 2147483647 !important;
+}

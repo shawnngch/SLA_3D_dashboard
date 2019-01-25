@@ -119,7 +119,7 @@
           "relativeTo": "browser"
         },
         "version": "2.9",
-        "id": "widgets_Filter0_Widget_17",
+        "id": "widgets_Filter0",
         "url": "/webappbuilder/apps/2/widgets/Filter0/",
         "icon": "widgets/Search/images/icon.png",
         "name": "Filter0",
@@ -202,6 +202,32 @@
         "url": "/webappbuilder/apps/2/widgets/FullScreen/",
         "icon": "widgets/FullScreen/images/icon.png",
         "name": "FullScreen"
+      },
+      {
+        "uri": "widgets/ToggleLegend/Widget",
+        "position": {
+          "right": 10,
+          "top": 94,
+          "relativeTo": "map"
+        },
+        "version": "2.9",
+        "id": "widgets_ToggleLegend",
+        "url": "/webappbuilder/apps/2/widgets/ToggleLegend/",
+        "icon": "widgets/ToggleLegend/images/icon.png",
+        "name": "ToggleLegend"
+      },
+      {
+        "uri": "widgets/ToggleFilter/Widget",
+        "position": {
+          "right": 10,
+          "top": 136,
+          "relativeTo": "map"
+        },
+        "version": "2.9",
+        "id": "widgets_ToggleFilter",
+        "url": "/webappbuilder/apps/2/widgets/ToggleFilter/",
+        "icon": "widgets/ToggleFilter/images/icon.png",
+        "name": "ToggleFilter"
       },
       {
         "uri": "widgets/Coordinate/Widget",

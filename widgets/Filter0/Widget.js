@@ -66,6 +66,7 @@ define([
         'subtenants': null,
         'textured': null,
         'untextured': null,
+        'stateProperty': null,
       },
 
       postCreate: function () {
@@ -73,11 +74,100 @@ define([
           var date0 = new Date(dateVal)
           return (date0.getMonth() + 1) + "/" + date0.getDate() + "/" + date0.getFullYear();
         }
+
+        //window.searchIDTA(values, field, Timeline)
+        window.searchIDTA = function searchIDTA(values, field, Timeline) {
+          var IDTA_filtered = window.IDTA.filter(el => el.TIMELINE == Timeline);
+          var IDTA_return = []
+          for (var i = 0; i < IDTA_filtered.length; i++) {
+            if (values.indexOf(IDTA_filtered[i][field]) >= 0) {
+              IDTA_return.push(IDTA_filtered[i])
+            }
+          }
+          return IDTA_return
+        }
+
+        var that = this
+        // Actual work after loading all data
+          //Global Variable Listener (on Window.lastwidget)
+          function Create(callback) {
+            var widget = null;
+            return {
+              getWidget: function () { return widget; },
+              setWidget: function (p) { widget = p; callback(widget); },
+            };
+          }
+
+          window.lastwidget = Create(function (widget) {
+            that.lastwidget0 = widget
+            console.log(widget)
+            that._populateFilterVal()
+          });
+
+          //Global Variable Listener (on Window.filtervalues)
+          window.filterlistener = {
+            filterValuesInternal: null,
+            aListener: function (val) { },
+            set filterValues(val) {
+              this.filterValuesInternal = val;
+              this.aListener(val);
+            },
+            get filterValues() {
+              return this.filterValuesInternal;
+            },
+            registerListener: function (listener) {
+              this.aListener = listener;
+            }
+          }
+
+          //Global Variable Listener (on window.OccupationDate)
+          window.OccupationDate = {
+            OccupationDateInternal: null,
+            aListener: function (val) { },
+            set DateVal(val) {
+              this.OccupationDateInternal = val;
+              this.aListener(val);
+            },
+            get DateVal() {
+              return this.OccupationDateInternal;
+            },
+            registerListener: function (listener) {
+              this.aListener = listener;
+            }
+          }
+
+          window.OccupationDate.registerListener(function (target_occupation_date) {
+            // alert("Someone changed the value of x.a to " + val);
+            // that._onFilterChanged(target_occupation_date);
+            console.log("OccupationDate Listener")
+            that._onFilterChanged();
+          });
+
+          // //Global Variable Listener (on window.OccupationDate)
+          window.timeline = {
+            timelineInternal: null,
+            aListener: function (val) { },
+            set DateVal(val) {
+              this.timelineInternal = val;
+              this.aListener(val);
+            },
+            get DateVal() {
+              return this.timelineInternal;
+            },
+            registerListener: function (listener) {
+              this.aListener = listener;
+            }
+          }
+
+          window.timeline.registerListener(function () {
+            that._onFilterChanged();
+          });
       },
       startup: function () {
 
         var that = this;
         this._config = lang.clone(this.config.editor);
+        window._config = this._config
         //Load all data
         var PMS = [], IDTA = [], subtenants = [], tenancy = [], Units = [], Buildings = [];
         var Timeline = [];
@@ -179,61 +269,7 @@ define([
           // that.LayerTitle.untextured = Buildings_Untextured_Scene.title
           that.sceneView.map.addMany([Unit_Scene, Buildings_Untextured_Scene, Buildings_Textured_Scene])
 
-
-          // Actual work after loading all data
-          //Global Variable Listener (on Window.lastwidget)
-          function Create(callback) {
-            var widget = null;
-            return {
-              getWidget: function () { return widget; },
-              setWidget: function (p) { widget = p; callback(widget); },
-            };
-          }
-
-          window.lastwidget = Create(function (widget) {
-            that.lastwidget0 = widget
-            that._populateFilterVal()
-          });
-
-          //Global Variable Listener (on Window.filtervalues)
-          window.filterlistener = {
-            filterValuesInternal: null,
-            aListener: function (val) { },
-            set filterValues(val) {
-              this.filterValuesInternal = val;
-              this.aListener(val);
-            },
-            get filterValues() {
-              return this.filterValuesInternal;
-            },
-            registerListener: function (listener) {
-              this.aListener = listener;
-            }
-          }
-
-          //Global Variable Listener (on window.OccupationDate)
-          window.OccupationDate = {
-            OccupationDateInternal: null,
-            aListener: function (val) { },
-            set DateVal(val) {
-              this.OccupationDateInternal = val;
-              this.aListener(val);
-            },
-            get DateVal() {
-              return this.OccupationDateInternal;
-            },
-            registerListener: function (listener) {
-              this.aListener = listener;
-            }
-          }
-
-          window.OccupationDate.registerListener(function (target_occupation_date) {
-            // alert("Someone changed the value of x.a to " + val);
-            that._onFilterChanged(target_occupation_date);
-          });
-
           window.lastwidget.setWidget("");
-
         });
       },
       onOpen: function () {
@@ -244,6 +280,7 @@ define([
         this.own(on(this.BuildingFilter, 'change', lang.hitch(this, this._onFilterChanged)));
         this.own(on(this.FloorFilter, 'change', lang.hitch(this, this._onFilterChanged)));
         this.own(on(this.ViewFilter, 'change', lang.hitch(this, this._onFilterChanged)));
+        this.own(on(this.StatePropertyFilter, 'change', lang.hitch(this, this._onFilterChanged)));
         this.own(on(this.ClearFilter, 'click', lang.hitch(this, this._ClearFilter)));
       },
       _populateFilterVal: function () {
@@ -254,7 +291,7 @@ define([
         //get filter values
         var Cluster = [], Property = [], Building = [], Floor = [];
 
-        if (this.lastwidget0 == "" || this.lastwidget0 == "Overview" || this.lastwidget0 == "Leasing") {
+        if (this.lastwidget0 == "" || this.lastwidget0 == "Overview" || this.lastwidget0 == "Leasing" || this.lastwidget0 == "Marketing") {
           for (var i = 0; i < Buildings.length; i++) {
             if (Buildings[i].CLASSIFICATION_OF_CLUSTER !== null && Cluster.indexOf(Buildings[i].CLASSIFICATION_OF_CLUSTER) == -1)
               Cluster.push(Buildings[i].CLASSIFICATION_OF_CLUSTER)
@@ -389,7 +426,7 @@ define([
         this.inherited(arguments);
       },
 
-      _onFilterChanged: function (target_occupation_date) {
+      _onFilterChanged: function () {
         console.log("Filter0 _onFilterChanged")
         var TenantVal = $('#TenantFilter').dropdown('get value');
         var PropVal = $('#PropertyFilter').dropdown('get value');
@@ -397,6 +434,7 @@ define([
         var BuildingVal = $('#BuildingFilter').dropdown('get value');
         var FloorVal = $('#FloorFilter').dropdown('get value');
         var ViewVal = this.ViewFilter.value;
+        var StatePropertyVal = this.StatePropertyFilter.checked;
 
         var FilterValues0 = {
           'Tenant': TenantVal,
@@ -440,33 +478,45 @@ define([
 
 
         var ClusterQuery = arrayQuery(ClusterVal, "CLASSIFICATION_OF_CLUSTER = ")
-        var PropQuery = arrayQuery(PropVal, "PROPERTY_ID= ")
+        var PropQuery = arrayQuery(PropVal, "PROPERTY_ID = ")
         // var strMaxTimeline = window.toShortDate(window.maxTimeline)
         // var TimelineQuery = arrayQuery(strMaxTimeline, "TIMELINE = ")//"TIMELINE > '7/29/2018'"
+
+        if (window.timeline.DateVal == null) window.timeline.DateVal = new Date(window.maxTimeline)
         if (this.lastwidget0 == "Subtenant") {
           var BldgQuery = arrayQuery(BuildingVal, "BLOCK_NO= ")
           var floorQuery = arrayQuery(FloorVal, "STOREY= ")
-        }
-        if (this.lastwidget0 == "Leasing" || this.lastwidget0 == "Subtenant") {
           var TenancyQuery = arrayQuery(TenantVal, "TA_ACCOUNT = ")
-        }
-        if (this.lastwidget0 == "Marketing") {
-          var ExpiryQuery
+        } else if (this.lastwidget0 == "Leasing") {
+          var TenancyQuery = arrayQuery(TenantVal, "TA_ACCOUNT = ")
+        } else if (this.lastwidget0 == "Marketing") {
+          var TenureQuery
+          var TimelineQuery = "TIMELINE='" + window.toShortDate(new Date(window.maxTimeline)) + "'"
+          var target_occupation_date = window.OccupationDate.DateVal
           if (!(target_occupation_date == null || target_occupation_date == "")) {
             var date = (new Date(target_occupation_date));
             if (isNaN(date.getTime())) {  // d.valueOf() could also work
               // date is not valid
-              ExpiryQuery = null
+              TenureQuery = null
             } else {
               // date is valid
               var strdate = (date.getMonth() + 1) + '/' + date.getDate() + '/' + (date.getFullYear()) //+' 12:00:00 AM'
               // var strdate = (date.getFullYear())+'-'+(date.getMonth() + 1) + '-' + date.getDate()
-              ExpiryQuery = arrayQuery(strdate, "EXISTING_TA_EXPIRY_DATE >  ")
+              TenureQuery = "(" + arrayQuery(strdate, "COMMITTED_TENURE_END_DATE  >  ") + " OR COMMITTED_TENURE_END_DATE = '')"
             }
           } else {
-            ExpiryQuery = null
+            TenureQuery = null
           }
-
+        } else if (this.lastwidget0 == "Overview") {
+          var TimelineQuery
+          // var mTL = new Date(window.maxTimeline)
+          // console.log(window.timeline.DateVal)
+          // console.log(mTL)
+          if (window.toShortDate(window.timeline.DateVal) === window.toShortDate(new Date(window.maxTimeline))) {
+            TimelineQuery = "OBJECTID > 94"
+          } else {
+            TimelineQuery = "OBJECTID < 95"
+          }
         }
 
         var queryDef
@@ -477,19 +527,24 @@ define([
           queryDef = [TenancyQuery, ClusterQuery, PropQuery].filter(Boolean).join(" OR ");
         } else if (this.lastwidget0 == "Marketing") {
           // queryDef = [[TenancyQuery, ClusterQuery, PropQuery].filter(Boolean).join(" OR "), ExpiryQuery].filter(Boolean).join(" AND ");
-          // queryDef = [ExpiryQuery, TimelineQuery].filter(Boolean).join(" AND ");
-          queryDef = ExpiryQuery
+          // queryDef = [TenureQuery, TimelineQuery].filter(Boolean).join(" AND ");
+          queryDef = [TenureQuery, TimelineQuery].filter(Boolean).join(" AND ");
+        } else if (this.lastwidget0 == "Overview") {
+          var ClusterQuery1 = ClusterQuery ? [TimelineQuery, ClusterQuery].filter(Boolean).join(" AND ") : ''
+          var PropQuery1 = PropQuery ? [TimelineQuery, PropQuery].filter(Boolean).join(" AND ") : ''
+          if (ClusterQuery1 == "" && PropQuery1 == "") queryDef = TimelineQuery
+          else queryDef = [ClusterQuery1, PropQuery1].filter(Boolean).join(" OR ")
         } else {
           queryDef = [ClusterQuery, PropQuery].filter(Boolean).join(" OR ");
         }
 
         // ----------------------------------------------------------update Graphical Layer---------------------------------------------------------------
         var that = this
-        this.LayerTitle.subtenants = this.sceneView.map.layers.items[2].title
-        this.LayerTitle.untextured = this.sceneView.map.layers.items[3].title
-        this.LayerTitle.textured = this.sceneView.map.layers.items[4].title
+        this.LayerTitle.stateProperty = this.sceneView.map.layers.items[1].title
+        this.LayerTitle.subtenants = this.sceneView.map.layers.items[3].title
+        this.LayerTitle.untextured = this.sceneView.map.layers.items[4].title
+        this.LayerTitle.textured = this.sceneView.map.layers.items[5].title
 
-        var template
         this.sceneView.map.layers.forEach(function (layer) {
           if (!(layer.title == "Tanglin Ortho" || layer.title == null)) {
             if (ViewVal == "none") {
@@ -500,6 +555,10 @@ define([
                   layer.visible = true;
                   layer.popupTemplate = that._config.GeometryLayers.textured.sceneLayer.template;
                   layer.definitionExpression = queryDef;
+                } else if (layer.title == that.LayerTitle.stateProperty) {
+                  layer.visible = StatePropertyVal;
+                  // layer.popupTemplate = that._config.GeometryLayers.textured.sceneLayer.template;
+                  // layer.definitionExpression = queryDef;
                 } else {
                   layer.visible = false;
                 }
@@ -513,25 +572,47 @@ define([
                   layer.renderer = renderer
                   layer.opacity = 0.7;
                   layer.visible = true;
+                } else if (layer.title == that.LayerTitle.stateProperty) {
+                  layer.visible = StatePropertyVal;
                 } else {
                   layer.visible = false;
                 }
               } else if (that.lastwidget0 == "Overview" || that.lastwidget0 == "Leasing" || that.lastwidget0 == "Marketing" || that.lastwidget0 == "") {
-                if (layer.title == that.LayerTitle.untextured) {
+                if (layer.title == that.LayerTitle.untextured || layer.title == that.LayerTitle.stateProperty) {
                   var viewIndex = findWithAttr(that._config.ViewBy, "Value", ViewVal)
-                  var renderer = that._config.ViewBy[viewIndex].Renderer
+                  var renderer
+                  if (layer.title == that.LayerTitle.stateProperty) {
+                    // renderer = that._config.ViewBy[viewIndex].Renderer2D
+                    // layer.renderer = renderer
+                    // layer.opacity = 0.3;
+
+                    var TQ = "TIMELINE ='" + window.toShortDate(new Date(window.timeline.DateVal)) + "'"
+                    // queryDef =[[ClusterQuery, PropQuery].filter(Boolean).join(" OR "),TQ].filter(Boolean).join(" AND ") ;
+
+                    var ClusterQuery1 //= ClusterQuery?[TQ, ClusterQuery].filter(Boolean).join(" AND "):''
+                    var PropQuery1 = PropQuery ? [TQ, PropQuery].filter(Boolean).join(" AND ") : ''
+                    if (PropQuery1 == "") layer.definitionExpression = TQ
+                    else layer.definitionExpression = [ClusterQuery1, PropQuery1].filter(Boolean).join(" OR ")
+                    // layer.definitionExpression = [[ClusterQuery, PropQuery].filter(Boolean).join(" OR "), TQ].filter(Boolean).join(" AND ");
+                  }
+                  else {
+                    renderer = that._config.ViewBy[viewIndex].Renderer
+                    layer.renderer = renderer
+                    layer.opacity = 0.8;
+                    layer.definitionExpression = queryDef;
+                  }
                   console.log(queryDef)
-                  layer.definitionExpression = queryDef;
-                  layer.renderer = renderer
-                  layer.opacity = 0.8;
                   layer.visible = true;
                   layer.popupEnabled = true;
-                  layer.popupTemplate = that._config.GeometryLayers.untextured.sceneLayer.template;
-                  if (that.lastwidget0 == "Marketing") {
-                    layer.popupEnabled = false;
-                  }
+                  // layer.popupTemplate = that._config.GeometryLayers.untextured.sceneLayer.template;
+                  // } else if (layer.title == that.LayerTitle.stateProperty) {
+                  //   layer.visible = StatePropertyVal;
                 } else {
                   layer.visible = false;
+                }
+
+                if (that.lastwidget0 == "Marketing") {
+                  layer.popupEnabled = false;
                 }
               }
 

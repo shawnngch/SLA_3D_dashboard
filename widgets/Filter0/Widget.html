@@ -1,7 +1,7 @@
 <div class="container">
 	<div data-dojo-attach-point="filterNode" class="filter-node">
 		<div class="filter-container" data-dojo-attach-point="TenantFilterContainer" hidden=true>
-			<div class="filter-title">Filter by Tenant:</div> 
+			<div class="filter-title">Filter by Tenant:</div>
 			<select class="ui search selection dropdown" multiple="" id="TenantFilter" data-dojo-attach-point="TenantFilter">
 			</select>
 		</div>
@@ -21,7 +21,7 @@
 			</select>
 		</div>
 		<div class="filter-container" data-dojo-attach-point="FloorFilterContainer" hidden=true>
-			<div class="filter-title">Filter by Floor:</div>  
+			<div class="filter-title">Filter by Floor:</div>
 			<select class="filter ui selection dropdown" multiple="" id="FloorFilter" data-dojo-attach-point="FloorFilter">
 			</select>
 		</div>
@@ -29,6 +29,12 @@
 			<div class="filter-title">View Buildings By:</div>
 			<select class="filter ui selection dropdown" data-dojo-attach-point="ViewFilter">
 			</select>
+		</div>
+		<div class="filter-container">
+			<div class="ui checked toggle checkbox">
+				<input type="checkbox" checked="" data-dojo-attach-point="StatePropertyFilter">
+				<label>State Property</label>
+			</div>
 		</div>
 		<div class="clear-container">
 			<button type="button" class="ui button" data-dojo-attach-point="ClearFilter">Clear Filters</button>

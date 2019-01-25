@@ -1,0 +1,74 @@
+.jimu-widget-toggleFilter {
+  opacity: 0.8;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.jimu-widget-toggleFilter:hover{
+  opacity: 1;
+}
+
+.jimu-widget-toggleFilter .toggleFilter {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  text-align: center;
+  line-height: 32px;
+  font-size: 14px;
+  background-color: #fff;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.jimu-widget-toggleFilter .toggleFilter:before{
+  font-family: 'Themefont';
+}
+
+.jimu-widget-toggleFilter .toggleFilter.restore:before {
+  content: "\a906";
+}
+
+.jimu-widget-toggleFilter .toggleFilter.maximize:before {
+  content: "\a905";
+}
+
+/*full-screen style for browsers*/
+:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:-moz-full-screen {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:-ms-toggleFilter {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:toggleFilter {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:full-screen {
+  width: 100%;
+  height: 100%;
+  background: #11ee11;
+}
+
+:toggleFilter-ancestor {
+  z-index: -1;
+}
+
+/*display dijitPopups after toggleFilter*/
+.body-toggleFiltered > .dijitPopup {
+  z-index: 2147483647 !important;
+}
